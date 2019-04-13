@@ -33,6 +33,18 @@ class FirebirdGrammar extends Grammar
     }
 
     /**
+     * Compile the query to determine the list of columns.
+     *
+     * @param  string  $table
+     * @return string
+     */
+    public function compileColumnExists($table)
+    {
+        return 'SELECT TRIM(RDB$FIELD_NAME) AS "column_name" '
+                . "FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME = '$table'";
+    }
+
+    /**
      * Compile a create table command.
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
