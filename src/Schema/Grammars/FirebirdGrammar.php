@@ -38,7 +38,7 @@ class FirebirdGrammar extends Grammar
      * @param  string  $table
      * @return string
      */
-    public function compileColumnExists($table)
+    public function compileColumnListing($table)
     {
         return 'SELECT TRIM(RDB$FIELD_NAME) AS "column_name" '
                 . "FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME = '$table'";
