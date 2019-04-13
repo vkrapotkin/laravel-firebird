@@ -17,12 +17,12 @@ Declare your connection in the database config, using 'firebird' as the
 driver:
 ```php
 'firebird' => [
-    'driver' => 'firebird',
-    'host' => env('DB_HOST', 'localhost'),
+    'driver'   => 'firebird',
+    'host'     => env('DB_HOST', 'localhost'),
     'database' => env('DB_DATABASE','/path_to/database.fdb'),
     'username' => env('DB_USERNAME', 'sysdba'),
     'password' => env('DB_PASSWORD', 'masterkey'),
-    'charset' => env('DB_CHARSET', 'UTF8'),
+    'charset'  => env('DB_CHARSET', 'UTF8'),
 ],
 ```
 
