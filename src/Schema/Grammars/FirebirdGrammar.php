@@ -5,7 +5,6 @@ namespace Firebird\Schema\Grammars;
 use Illuminate\Database\Schema\Grammars\Grammar;
 use Illuminate\Support\Fluent;
 use Illuminate\Database\Schema\Blueprint;
-use Firebird\Connection;
 
 class FirebirdGrammar extends Grammar
 {
@@ -14,14 +13,14 @@ class FirebirdGrammar extends Grammar
      *
      * @var array
      */
-    protected $modifiers = ['Default', 'Nullable'];
+    protected $modifiers = ['Charset', 'Collate', 'Increment', 'Nullable', 'Default'];
 
     /**
      * The columns available as serials.
      *
      * @var array
      */
-    protected $serials = ['integer'];
+    protected $serials = ['bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'];
 
     /**
      * Compile the query to determine if a table exists.
@@ -30,7 +29,7 @@ class FirebirdGrammar extends Grammar
      */
     public function compileTableExists()
     {
-        return 'SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE RDB$RELATION_NAME = ?';
+        return 'SELECT * FROM RDB$RELATIONS WHERE RDB$RELATION_NAME = ?';
     }
 
     /**
@@ -38,14 +37,23 @@ class FirebirdGrammar extends Grammar
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent  $command
-     * @param  \Illuminate\Database\Connection  $connection
      * @return string
      */
-    public function compileCreate(Blueprint $blueprint, Fluent $command, Connection $connection)
+    public function compileCreate(Blueprint $blueprint, Fluent $command)
     {
         $columns = implode(', ', $this->getColumns($blueprint));
 
-        $sql = 'create table '.$this->wrapTable($blueprint)." ($columns)";
+        $sql = $blueprint->temporary ? 'CREATE TEMPORARY' : 'CREATE';
+
+        $sql .= ' TABLE '.$this->wrapTable($blueprint)." ($columns)";
+
+        if ($blueprint->temporary) {
+            if ($blueprint->preserve) {
+                $sql .= ' ON COMMIT DELETE ROWS';
+            } else {
+                $sql .= ' ON COMMIT PRESERVE ROWS';
+            }
+        }
 
         return $sql;
     }
@@ -59,7 +67,23 @@ class FirebirdGrammar extends Grammar
      */
     public function compileDrop(Blueprint $blueprint, Fluent $command)
     {
-        return 'drop table '.$this->wrapTable($blueprint);
+        return 'DROP TABLE '.$this->wrapTable($blueprint);
+    }
+
+    /**
+     * Compile a column addition command.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent  $command
+     * @return string
+     */
+    public function compileAdd(Blueprint $blueprint, Fluent $command)
+    {
+        $table = $this->wrapTable($blueprint);
+
+        $columns = $this->prefixArray('ADD', $this->getColumns($blueprint));
+
+        return 'ALTER TABLE '.$table.' '.implode(', ', $columns);
     }
 
     /**
@@ -71,9 +95,9 @@ class FirebirdGrammar extends Grammar
      */
     public function compilePrimary(Blueprint $blueprint, Fluent $command)
     {
-        $command->name(null);
+        $columns = $this->columnize($command->columns);
 
-        return $this->compileKey($blueprint, $command, 'primary key');
+        return 'ALTER TABLE '.$this->wrapTable($blueprint)." ADD PRIMARY KEY ({$columns})";
     }
 
     /**
@@ -85,11 +109,13 @@ class FirebirdGrammar extends Grammar
      */
     public function compileUnique(Blueprint $blueprint, Fluent $command)
     {
-        $columns = $this->columnize($command->columns);
-
         $table = $this->wrapTable($blueprint);
 
-        return 'CREATE UNIQUE INDEX '.strtoupper(substr($command->index, 0, 31))." ON {$table} ($columns)";
+        $index = $this->wrap(substr($command->index, 0, 31));
+
+        $columns = $this->columnize($command->columns);
+
+        return "ALTER TABLE {$table} ADD CONSTRAINT {$index} UNIQUE ({$columns})";
     }
 
     /**
@@ -103,26 +129,11 @@ class FirebirdGrammar extends Grammar
     {
         $columns = $this->columnize($command->columns);
 
-        $table = $this->wrapTable($blueprint);
-
-        return 'CREATE INDEX '.strtoupper(substr($command->index, 0, 31))." ON {$table} ($columns)";
-    }
-
-    /**
-     * Compile an index creation command.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @param  string  $type
-     * @return string
-     */
-    protected function compileKey(Blueprint $blueprint, Fluent $command, $type)
-    {
-        $columns = $this->columnize($command->columns);
+        $index = $this->wrap(substr($command->index, 0, 31));
 
         $table = $this->wrapTable($blueprint);
 
-        return "alter table {$table} add {$type} ($columns)";
+        return "CREATE INDEX {$index} ON {$table} ($columns)";
     }
 
     /**
@@ -145,19 +156,21 @@ class FirebirdGrammar extends Grammar
 
         $onColumns = $this->columnize((array) $command->references);
 
-        $sql = "alter table {$table} add constraint ".strtoupper(substr($command->index, 0, 31)).' ';
+        $fkName = substr($command->index, 0, 31);
 
-        $sql .= "foreign key ({$columns}) references {$on} ({$onColumns})";
+        $sql = "ALTER TABLE {$table} ADD CONSTRAINT {$fkName} ";
+
+        $sql .= "FOREIGN KEY ({$columns}) REFERENCES {$on} ({$onColumns})";
 
         // Once we have the basic foreign key creation statement constructed we can
         // build out the syntax for what should happen on an update or delete of
         // the affected columns, which will get something like "cascade", etc.
         if (!is_null($command->onDelete)) {
-            $sql .= " on delete {$command->onDelete}";
+            $sql .= " ON DELETE {$command->onDelete}";
         }
 
         if (!is_null($command->onUpdate)) {
-            $sql .= " on update {$command->onUpdate}";
+            $sql .= " ON UPDATE {$command->onUpdate}";
         }
 
         return $sql;
@@ -174,7 +187,35 @@ class FirebirdGrammar extends Grammar
     {
         $table = $this->wrapTable($blueprint);
 
-        return "alter table {$table} drop constraint {$command->index}";
+        return "ALTER TABLE {$table} DROP CONSTRAINT {$command->index}";
+    }
+
+    /**
+     * Get the SQL for a character set column modifier.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string|null
+     */
+    protected function modifyCharset(Blueprint $blueprint, Fluent $column)
+    {
+        if (!is_null($column->charset)) {
+            return ' CHARACTER SET '.$column->charset;
+        }
+    }
+
+    /**
+     * Get the SQL for a collation column modifier.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string|null
+     */
+    protected function modifyCollate(Blueprint $blueprint, Fluent $column)
+    {
+        if (!is_null($column->collation)) {
+            return ' COLLATE '.$column->collation;
+        }
     }
 
     /**
@@ -186,7 +227,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function modifyNullable(Blueprint $blueprint, Fluent $column)
     {
-        return $column->nullable ? '' : ' not null';
+        return $column->nullable ? '' : ' NOT NULL';
     }
 
     /**
@@ -199,7 +240,7 @@ class FirebirdGrammar extends Grammar
     protected function modifyDefault(Blueprint $blueprint, Fluent $column)
     {
         if (!is_null($column->default)) {
-            return ' default '.$this->getDefaultValue($column->default);
+            return ' DEFAULT '.$this->getDefaultValue($column->default);
         }
     }
 
@@ -211,7 +252,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeChar(Fluent $column)
     {
-        return 'VARCHAR';
+        return "CHAR({$column->length})";
     }
 
     /**
@@ -222,7 +263,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeString(Fluent $column)
     {
-        return 'VARCHAR ('.$column->length.')';
+        return "VARCHAR({$column->length})";
     }
 
     /**
@@ -277,7 +318,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeBigInteger(Fluent $column)
     {
-        return 'INTEGER';
+        return 'BIGINT';
     }
 
     /**
@@ -332,7 +373,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeDouble(Fluent $column)
     {
-        return 'DOUBLE';
+        return 'DOUBLE PRECISION';
     }
 
     /**
@@ -343,7 +384,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeDecimal(Fluent $column)
     {
-        return 'DECIMAL';
+        return "DECIMAL({$column->total}, {$column->places})";
     }
 
     /**
@@ -365,7 +406,11 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeEnum(Fluent $column)
     {
-        return 'VARCHAR';
+        $allowed = array_map(function ($a) {
+            return "'".$a."'";
+        }, $column->allowed);
+
+        return "VARCHAR(255) CHECK (\"{$column->name}\" IN (".implode(', ', $allowed).'))';
     }
 
     /**
@@ -376,7 +421,18 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeJson(Fluent $column)
     {
-        return 'BLOB SUB_TYPE 0';
+        return 'VARCHAR(8191)';
+    }
+
+    /**
+     * Create the column definition for a jsonb type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeJsonb(Fluent $column)
+    {
+        return 'VARCHAR(8191) CHARACTER SET OCTETS';
     }
 
     /**
@@ -387,7 +443,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeDate(Fluent $column)
     {
-        return 'TIMESTAMP';
+        return 'DATE';
     }
 
     /**
@@ -402,6 +458,18 @@ class FirebirdGrammar extends Grammar
     }
 
     /**
+     * Create the column definition for a date-time type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeDateTimeTz(Fluent $column)
+    {
+        // No timezone support, default to plain date time
+        return $this->typeDateTime($column);
+    }
+
+    /**
      * Create the column definition for a time type.
      *
      * @param  \Illuminate\Support\Fluent  $column
@@ -409,7 +477,19 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeTime(Fluent $column)
     {
-        return 'TIMESTAMP';
+        return 'TIME';
+    }
+
+    /**
+     * Create the column definition for a time type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeTimeTz(Fluent $column)
+    {
+        // No timezone support, default to plain time
+        return $this->typeTime($column);
     }
 
     /**
@@ -420,7 +500,23 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeTimestamp(Fluent $column)
     {
+        if ($column->useCurrent) {
+            return 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP';
+        }
+
         return 'TIMESTAMP';
+    }
+
+    /**
+     * Create the column definition for a timestamp type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeTimestampTz(Fluent $column)
+    {
+        // No timezone support, default to plain timestamp
+        return $this->typeTimestamp($column);
     }
 
     /**
@@ -431,6 +527,39 @@ class FirebirdGrammar extends Grammar
      */
     protected function typeBinary(Fluent $column)
     {
-        return 'BLOB SUB_TYPE 0';
+        return 'BLOB SUB_TYPE BINARY';
+    }
+
+    /**
+     * Create the column definition for a uuid type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeUuid(Fluent $column)
+    {
+        return 'CHAR(36)';
+    }
+
+    /**
+     * Create the column definition for an IP address type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeIpAddress(Fluent $column)
+    {
+        return 'VARCHAR(45)';
+    }
+
+    /**
+     * Create the column definition for a MAC address type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeMacAddress(Fluent $column)
+    {
+        return 'VARCHAR(17)';
     }
 }

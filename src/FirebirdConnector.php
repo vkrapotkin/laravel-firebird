@@ -2,7 +2,6 @@
 
 namespace Firebird;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Illuminate\Database\Connectors\Connector;
 use Illuminate\Database\Connectors\ConnectorInterface;
 
@@ -13,21 +12,42 @@ class FirebirdConnector extends Connector implements ConnectorInterface
      *
      * @param  array  $config
      * @return \PDO
-     * @throws \InvalidArgumentException
      */
     public function connect(array $config)
     {
-        $options = $this->getOptions($config);
+        return $this->createConnection(
+            $this->getDsn($config),
+            $config,
+            $this->getOptions($config)
+        );
+    }
 
-        $path = $config['database'];
+    /**
+     * Create a DSN string from the configuration.
+     *
+     * @param  array   $config
+     * @return string
+     */
+    protected function getDsn(array $config)
+    {
+        extract($config);
 
-        $charset = $config['charset'];
-
-        $host = $config['host'];
-        if (empty($host)) {
-            throw new InvalidArgumentException('Host not given, required.');
+        if (!isset($host) || !isset($database)) {
+            trigger_error("Cannot connect to Firebird Database, no host or database supplied");
         }
 
-        return $this->createConnection("firebird:dbname={$host}:{$path};charset={$charset}", $config, $options);
+        $dsn = "firebird:dbname={$host}";
+
+        if (isset($port)) {
+            $dsn .= "/{$port}";
+        }
+
+        $dsn .= ":{$database};";
+
+        if (isset($charset)) {
+            $dsn .= "charset={$charset}";
+        }
+
+        return $dsn;
     }
 }

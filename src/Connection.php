@@ -2,109 +2,12 @@
 
 namespace Firebird;
 
-use PDO;
-use Firebird\Schema\Grammars\FirebirdGrammar as SchemaGrammar;
-
 class Connection extends \Illuminate\Database\Connection
 {
     /**
-     * The Firebird database handler.
-     *
-     * @var Firebird
-     */
-    protected $db;
-
-    /**
-     * The Firebird connection handler.
-     *
-     * @var PDO
-     */
-    protected $connection;
-
-    /**
-     * Create a new database connection instance.
-     *
-     * @param  \PDO|\Closure     $pdo
-     * @param  string   $database
-     * @param  string   $tablePrefix
-     * @param  array    $config
-     * @return void
-     */
-    public function __construct($pdo, $database = '', $tablePrefix = '', array $config = [])
-    {
-        $this->pdo = $pdo;
-
-        $this->config = $config;
-
-        // First we will setup the default properties. We keep track of the DB
-        // name we are connected to since it is needed when some reflective
-        // type commands are run such as checking whether a table exists.
-        $this->database = $database;
-
-        $this->tablePrefix = $tablePrefix;
-
-        $this->config = $config;
-
-        // The connection string
-        $dsn = $this->getDsn($config);
-
-        // Create the connection
-        $this->connection = $this->createConnection($dsn, $config);
-
-        // Set the database
-        $this->db = $this->connection;
-
-        // We need to initialize a query grammar and the query post processors
-        // which are both very important parts of the database abstractions
-        // so we initialize these to their default values while starting.
-        $this->useDefaultQueryGrammar();
-
-        $this->useDefaultPostProcessor();
-    }
-
-    /**
-     * Return the DSN string from configuration.
-     *
-     * @param  array   $config
-     * @return string
-     */
-    protected function getDsn(array $config)
-    {
-        // Check that the host and database are not empty
-        if (!empty($config['host']) && !empty($config['database'])) {
-            return 'firebird:dbname='.$config['host'].':'.$config['database'].';charset='.$config['charset'];
-        } else {
-            trigger_error('Cannot connect to Firebird Database, no host or path supplied');
-        }
-    }
-
-    /**
-     * Create the Firebird Connection.
-     *
-     * @param  string  $dsn
-     * @param  array   $config
-     * @return PDO
-     */
-    public function createConnection($dsn, array $config)
-    {
-        //Check the username and password
-        if (!empty($config['username']) && !empty($config['password'])) {
-            try {
-                return new PDO($dsn, $config['username'], $config['password']);
-            } catch (PDOException $e) {
-                trigger_error($e->getMessage());
-            }
-        } else {
-            trigger_error('Cannot connect to Firebird Database, no username or password supplied');
-        }
-
-        return null;
-    }
-
-    /**
      * Get the default query grammar instance.
      *
-     * @return Query\Grammars\FirebirdGrammar
+     * @return \Firebird\Query\Grammars\FirebirdGrammar
      */
     protected function getDefaultQueryGrammar()
     {
@@ -114,7 +17,7 @@ class Connection extends \Illuminate\Database\Connection
     /**
      * Get the default post processor instance.
      *
-     * @return Query\Processors\FirebirdProcessor
+     * @return \Firebird\Query\Processors\FirebirdProcessor
      */
     protected function getDefaultPostProcessor()
     {
@@ -123,7 +26,7 @@ class Connection extends \Illuminate\Database\Connection
 
     /**
      * Get a schema builder instance for this connection.
-     * @return Schema\Builder
+     * @return \Firebird\Schema\Builder
      */
     public function getSchemaBuilder()
     {
@@ -137,25 +40,61 @@ class Connection extends \Illuminate\Database\Connection
     /**
      * Get the default schema grammar instance.
      *
-     * @return SchemaGrammar;
+     * @return \Firebird\Schema\Grammars\FirebirdGrammar
      */
     protected function getDefaultSchemaGrammar()
     {
-        return $this->withTablePrefix(new SchemaGrammar());
+        return $this->withTablePrefix(new Schema\Grammars\FirebirdGrammar());
     }
 
     /**
-     * Begin a fluent query against a database table.
+     * Get query builder.
      *
-     * @param  string  $table
-     * @return Firebird\Query\Builder
+     * @return \Firebird\Query\Builder
      */
-    public function table($table)
+    protected function getQueryBuilder()
     {
-        $processor = $this->getPostProcessor();
+        return new Query\Builder(
+            $this,
+            $this->getQueryGrammar(),
+            $this->getPostProcessor()
+        );
+    }
 
-        $query = new Query\Builder($this, $this->getQueryGrammar(), $processor);
+    /**
+     * Get a new query builder instance.
+     *
+     * @return \Firebird\Query\Builder
+     */
+    public function query()
+    {
+        return $this->getQueryBuilder();
+    }
 
-        return $query->from($table);
+    /**
+     * Execute stored function.
+     *
+     * @param string $function
+     * @param array $values
+     * @return mixed
+     */
+    public function executeFunction($function, array $values = null)
+    {
+        $query = $this->getQueryBuilder();
+
+        return $query->executeFunction($function, $values);
+    }
+
+    /**
+     * Execute stored procedure.
+     *
+     * @param string $procedure
+     * @param array $values
+     */
+    public function executeProcedure($procedure, array $values = null)
+    {
+        $query = $this->getQueryBuilder();
+
+        $query->executeProcedure($procedure, $values);
     }
 }
