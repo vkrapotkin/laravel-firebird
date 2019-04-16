@@ -218,4 +218,64 @@ class FirebirdGrammar extends BaseGrammar
 
         return '"'.str_replace('"', '""', $value).'"';
     }
+
+    /**
+     * Compile a "where in" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereIn(Builder $query, $where)
+    {
+        if (!empty($where['values'])) {
+            // Work-around for the firebird where-in limit of 1500
+            if (count($where['values']) > 1500) {
+                return $this->slicedWhereIn($query, $where, 1500);
+            }
+
+            return $this->wrap($where['column']).' in ('.$this->parameterize($where['values']).')';
+        }
+
+        return '0 = 1';
+    }
+
+    /**
+     * Compile a sliced where in query.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
+     * @param array $where
+     * @param int $limit
+     * @return string
+     */
+    private function slicedWhereIn(Builder $query, $where, $limit)
+    {
+        $sql = '';
+
+        for ($i = 0; $i < ceil(count($where['values']) / $limit); $i++) {
+            ($i !== 0) && $sql .= ' OR ';
+
+            $sql .= static::whereIn(
+                $query,
+                $this->sliceWhereValues($where, $i * $limit, $limit)
+            );
+        }
+
+        return '('.$sql.')';
+    }
+
+    /**
+     * Slices the values portion of a $where array.
+     *
+     * @param array $where
+     * @param int $offset
+     * @param int $length
+     * @return array
+     */
+    private function sliceWhereValues($where, $offset, $length)
+    {
+        $where['values'] = array_slice($where['values'], $offset, $length);
+
+        return $where;
+    }
 }
