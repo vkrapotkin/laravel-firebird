@@ -12,7 +12,7 @@ class Builder extends \Illuminate\Database\Query\Builder
      */
     public function executeProcedure($procedure, array $values = null)
     {
-        if (!$values) {
+        if (! $values) {
             $values = [];
         }
 
@@ -33,7 +33,7 @@ class Builder extends \Illuminate\Database\Query\Builder
      */
     public function executeFunction($function, array $values = null)
     {
-        if (!$values) {
+        if (! $values) {
             $values = [];
         }
 

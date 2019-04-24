@@ -2,9 +2,9 @@
 
 namespace Firebird\Schema\Grammars;
 
-use Illuminate\Database\Schema\Grammars\Grammar;
 use Illuminate\Support\Fluent;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Grammars\Grammar;
 
 class FirebirdGrammar extends Grammar
 {
@@ -41,7 +41,7 @@ class FirebirdGrammar extends Grammar
     public function compileColumnListing($table)
     {
         return 'SELECT TRIM(RDB$FIELD_NAME) AS "column_name" '
-                . "FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME = '$table'";
+                ."FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME = '$table'";
     }
 
     /**
@@ -177,11 +177,11 @@ class FirebirdGrammar extends Grammar
         // Once we have the basic foreign key creation statement constructed we can
         // build out the syntax for what should happen on an update or delete of
         // the affected columns, which will get something like "cascade", etc.
-        if (!is_null($command->onDelete)) {
+        if (! is_null($command->onDelete)) {
             $sql .= " ON DELETE {$command->onDelete}";
         }
 
-        if (!is_null($command->onUpdate)) {
+        if (! is_null($command->onUpdate)) {
             $sql .= " ON UPDATE {$command->onUpdate}";
         }
 
@@ -211,7 +211,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function modifyCharset(Blueprint $blueprint, Fluent $column)
     {
-        if (!is_null($column->charset)) {
+        if (! is_null($column->charset)) {
             return ' CHARACTER SET '.$column->charset;
         }
     }
@@ -225,7 +225,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function modifyCollate(Blueprint $blueprint, Fluent $column)
     {
-        if (!is_null($column->collation)) {
+        if (! is_null($column->collation)) {
             return ' COLLATE '.$column->collation;
         }
     }
@@ -251,7 +251,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function modifyDefault(Blueprint $blueprint, Fluent $column)
     {
-        if (!is_null($column->default)) {
+        if (! is_null($column->default)) {
             return ' DEFAULT '.$this->getDefaultValue($column->default);
         }
     }

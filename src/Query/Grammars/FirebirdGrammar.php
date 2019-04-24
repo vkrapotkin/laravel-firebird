@@ -2,8 +2,8 @@
 
 namespace Firebird\Query\Grammars;
 
-use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 
 class FirebirdGrammar extends BaseGrammar
 {
@@ -228,7 +228,7 @@ class FirebirdGrammar extends BaseGrammar
      */
     protected function whereIn(Builder $query, $where)
     {
-        if (!empty($where['values'])) {
+        if (! empty($where['values'])) {
             // Work-around for the firebird where-in limit of 1500
             if (count($where['values']) > 1500) {
                 return $this->slicedWhereIn($query, $where, 1500);
