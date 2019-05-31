@@ -26,6 +26,7 @@ class Connection extends \Illuminate\Database\Connection
 
     /**
      * Get a schema builder instance for this connection.
+     *
      * @return \Firebird\Schema\Builder
      */
     public function getSchemaBuilder()
