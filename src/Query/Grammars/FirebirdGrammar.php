@@ -151,21 +151,6 @@ class FirebirdGrammar extends BaseGrammar
     }
 
     /**
-     * Wrap a single string in keyword identifiers.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    protected function wrapValue($value)
-    {
-        if ($value === '*') {
-            return $value;
-        }
-
-        return '"'.str_replace('"', '""', $value).'"';
-    }
-
-    /**
      * Compile a "where in" clause.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
