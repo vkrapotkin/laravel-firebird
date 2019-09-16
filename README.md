@@ -19,7 +19,7 @@ driver:
 'firebird' => [
     'driver'   => 'firebird',
     'host'     => env('DB_HOST', 'localhost'),
-    'database' => env('DB_DATABASE','/path_to/database.fdb'),
+    'database' => env('DB_DATABASE', '/path_to/database.fdb'),
     'username' => env('DB_USERNAME', 'sysdba'),
     'password' => env('DB_PASSWORD', 'masterkey'),
     'charset'  => env('DB_CHARSET', 'UTF8'),
