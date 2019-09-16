@@ -6,26 +6,35 @@
 
 This package adds support for the Firebird PDO driver in Laravel applications. Support for Laravel 5.5+ with PHP 7.1+ and Firebird 2.5
 
+## Installation
+
 You can install the package via composer:
 
 ```json
 composer require harrygulliford/laravel-firebird
 ```
-The package will automatically register itself.
 
-Declare your connection in the database config, using 'firebird' as the
+_The package will automatically register itself._
+
+Declare the connection within your `config/database.php` file, using `firebird` as the
 driver:
 ```php
-'firebird' => [
-    'driver'   => 'firebird',
-    'host'     => env('DB_HOST', 'localhost'),
-    'database' => env('DB_DATABASE', '/path_to/database.fdb'),
-    'username' => env('DB_USERNAME', 'sysdba'),
-    'password' => env('DB_PASSWORD', 'masterkey'),
-    'charset'  => env('DB_CHARSET', 'UTF8'),
+'connections' => [
+    
+    'firebird' => [
+        'driver'   => 'firebird',
+        'host'     => env('DB_HOST', 'localhost'),
+        'database' => env('DB_DATABASE', '/path_to/database.fdb'),
+        'username' => env('DB_USERNAME', 'sysdba'),
+        'password' => env('DB_PASSWORD', 'masterkey'),
+        'charset'  => env('DB_CHARSET', 'UTF8'),
+    ],
+
 ],
 ```
 
+## Credits
 This package was originally forked from [acquestvanzuydam/laravel-firebird](https://github.com/jacquestvanzuydam/laravel-firebird) with enhancements from [sim1984/laravel-firebird](https://github.com/sim1984/laravel-firebird).
 
+## License
 Licensed under the [MIT](https://choosealicense.com/licenses/mit/) licence.
