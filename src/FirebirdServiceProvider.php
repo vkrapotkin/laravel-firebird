@@ -2,9 +2,9 @@
 
 namespace Firebird;
 
+use Firebird\Connection as FirebirdConnection;
 use Illuminate\Database\Connection;
 use Illuminate\Support\ServiceProvider;
-use Firebird\Connection as FirebirdConnection;
 
 class FirebirdServiceProvider extends ServiceProvider
 {

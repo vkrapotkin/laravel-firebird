@@ -2,9 +2,9 @@
 
 namespace Firebird\Schema\Grammars;
 
-use Illuminate\Support\Fluent;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Grammars\Grammar;
+use Illuminate\Support\Fluent;
 
 class FirebirdGrammar extends Grammar
 {
