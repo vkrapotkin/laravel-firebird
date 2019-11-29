@@ -2,7 +2,9 @@
 
 namespace Firebird\Query;
 
-class Builder extends \Illuminate\Database\Query\Builder
+use Illuminate\Database\Query\Builder as QueryBuilder;
+
+class Builder extends QueryBuilder
 {
     /**
      * Execute stored procedure.

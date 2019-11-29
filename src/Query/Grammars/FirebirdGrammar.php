@@ -3,9 +3,9 @@
 namespace Firebird\Query\Grammars;
 
 use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
+use Illuminate\Database\Query\Grammars\Grammar;
 
-class FirebirdGrammar extends BaseGrammar
+class FirebirdGrammar extends Grammar
 {
     /**
      * All of the available clause operators.

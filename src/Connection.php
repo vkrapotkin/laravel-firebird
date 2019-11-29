@@ -2,7 +2,13 @@
 
 namespace Firebird;
 
-class Connection extends \Illuminate\Database\Connection
+use Firebird\Query\Builder as FirebirdQueryBuilder;
+use Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
+use Firebird\Schema\Builder as FirebirdSchemaBuilder;
+use Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
+use Illuminate\Database\Connection as DatabaseConnection;
+
+class Connection extends DatabaseConnection
 {
     /**
      * Get the default query grammar instance.
@@ -11,7 +17,7 @@ class Connection extends \Illuminate\Database\Connection
      */
     protected function getDefaultQueryGrammar()
     {
-        return new Query\Grammars\FirebirdGrammar();
+        return new FirebirdQueryGrammar;
     }
 
     /**
@@ -25,7 +31,7 @@ class Connection extends \Illuminate\Database\Connection
             $this->useDefaultSchemaGrammar();
         }
 
-        return new Schema\Builder($this);
+        return new FirebirdSchemaBuilder($this);
     }
 
     /**
@@ -35,7 +41,7 @@ class Connection extends \Illuminate\Database\Connection
      */
     protected function getDefaultSchemaGrammar()
     {
-        return $this->withTablePrefix(new Schema\Grammars\FirebirdGrammar());
+        return $this->withTablePrefix(new FirebirdSchemaGrammar);
     }
 
     /**
@@ -45,7 +51,7 @@ class Connection extends \Illuminate\Database\Connection
      */
     protected function getQueryBuilder()
     {
-        return new Query\Builder(
+        return new FirebirdQueryBuilder(
             $this,
             $this->getQueryGrammar(),
             $this->getPostProcessor()
