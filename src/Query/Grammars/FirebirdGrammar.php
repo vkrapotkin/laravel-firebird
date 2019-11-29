@@ -54,18 +54,17 @@ class FirebirdGrammar extends Grammar
 
     /**
      * Compile SQL statement for a stored procedure.
-     * Compile SQL statement for execute procedure.
      *
      * @param \Illuminate\Database\Query\Builder  $query
      * @param string $procedure
      * @param array $values
      * @return string
      */
-    public function compileExecProcedure(Builder $query, $procedure, array $values = null)
+    public function compileProcedure(Builder $query, $procedure, array $values = null)
     {
         $procedure = $this->wrap($procedure);
 
-        return "EXECUTE PROCEDURE {$procedure} (".$this->parameterize($values).')';
+        return "{$procedure} (".$this->parameterize($values).')';
     }
 
     /**

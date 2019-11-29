@@ -7,21 +7,18 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 class Builder extends QueryBuilder
 {
     /**
-     * Execute stored procedure.
+     * Add a from stored procedure clause to the query builder.
      *
      * @param string $procedure
      * @param array $values
+     * @return \Illuminate\Database\Query\Builder|static
      */
-    public function executeProcedure($procedure, array $values = null)
+    public function fromProcedure(string $procedure, array $values = [])
     {
-        if (! $values) {
-            $values = [];
-        }
+        $compiledProcedure = $this->grammar->compileProcedure($this, $procedure, $values);
 
-        $bindings = array_values($values);
+        $this->fromRaw($compiledProcedure, array_values($values));
 
-        $sql = $this->grammar->compileExecProcedure($this, $procedure, $values);
-
-        $this->connection->statement($sql, $this->cleanBindings($bindings));
+        return $this;
     }
 }

@@ -69,15 +69,15 @@ class Connection extends DatabaseConnection
     }
 
     /**
-     * Execute stored procedure.
+     * Execute a stored procedure.
      *
      * @param string $procedure
      * @param array $values
+     *
+     * @return \Illuminate\Support\Collection
      */
-    public function executeProcedure($procedure, array $values = null)
+    public function executeProcedure($procedure, array $values = [])
     {
-        $query = $this->getQueryBuilder();
-
-        $query->executeProcedure($procedure, $values);
+        return $this->query()->fromProcedure($procedure, $values)->get();
     }
 }
