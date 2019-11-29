@@ -53,21 +53,7 @@ class FirebirdGrammar extends BaseGrammar
     }
 
     /**
-     * Compile SQL statement for execute function.
-     *
-     * @param \Illuminate\Database\Query\Builder  $query
-     * @param string $function
-     * @param array $values
-     * @return string
-     */
-    public function compileExecFunction(Builder $query, $function, array $values = null)
-    {
-        $function = $this->wrap($function);
-
-        return "SELECT  {$function} (".$this->parameterize($values).') AS VAL FROM RDB$DATABASE';
-    }
-
-    /**
+     * Compile SQL statement for a stored procedure.
      * Compile SQL statement for execute procedure.
      *
      * @param \Illuminate\Database\Query\Builder  $query

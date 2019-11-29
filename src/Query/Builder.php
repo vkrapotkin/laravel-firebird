@@ -22,23 +22,4 @@ class Builder extends \Illuminate\Database\Query\Builder
 
         $this->connection->statement($sql, $this->cleanBindings($bindings));
     }
-
-    /**
-     * Execute stored function.
-     *
-     * @param string $function
-     * @param array $values
-     *
-     * @return mixed
-     */
-    public function executeFunction($function, array $values = null)
-    {
-        if (! $values) {
-            $values = [];
-        }
-
-        $sql = $this->grammar->compileExecProcedure($this, $function, $values);
-
-        return $this->processor->processExecuteFunction($this, $sql, $values);
-    }
 }

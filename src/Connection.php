@@ -63,20 +63,6 @@ class Connection extends \Illuminate\Database\Connection
     }
 
     /**
-     * Execute stored function.
-     *
-     * @param string $function
-     * @param array $values
-     * @return mixed
-     */
-    public function executeFunction($function, array $values = null)
-    {
-        $query = $this->getQueryBuilder();
-
-        return $query->executeFunction($function, $values);
-    }
-
-    /**
      * Execute stored procedure.
      *
      * @param string $procedure
