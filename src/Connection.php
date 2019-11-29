@@ -15,16 +15,6 @@ class Connection extends \Illuminate\Database\Connection
     }
 
     /**
-     * Get the default post processor instance.
-     *
-     * @return \Firebird\Query\Processors\FirebirdProcessor
-     */
-    protected function getDefaultPostProcessor()
-    {
-        return new Query\Processors\FirebirdProcessor();
-    }
-
-    /**
      * Get a schema builder instance for this connection.
      *
      * @return \Firebird\Schema\Builder
