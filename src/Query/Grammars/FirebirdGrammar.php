@@ -64,7 +64,7 @@ class FirebirdGrammar extends Grammar
     {
         $procedure = $this->wrap($procedure);
 
-        return "{$procedure} (".$this->parameterize($values).')';
+        return $procedure.' ('.$this->parameterize($values).')';
     }
 
     /**
