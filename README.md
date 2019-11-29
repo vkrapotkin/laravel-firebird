@@ -20,7 +20,7 @@ Declare the connection within your `config/database.php` file, using `firebird` 
 driver:
 ```php
 'connections' => [
-    
+
     'firebird' => [
         'driver'   => 'firebird',
         'host'     => env('DB_HOST', 'localhost'),
@@ -28,6 +28,7 @@ driver:
         'username' => env('DB_USERNAME', 'sysdba'),
         'password' => env('DB_PASSWORD', 'masterkey'),
         'charset'  => env('DB_CHARSET', 'UTF8'),
+        'role'  => null,
     ],
 
 ],

@@ -44,6 +44,10 @@ class FirebirdConnector extends Connector implements ConnectorInterface
 
         $dsn .= ":{$database};";
 
+        if (isset($role)) {
+            $dsn .= "role={$role};";
+        }
+
         if (isset($charset)) {
             $dsn .= "charset={$charset};";
         }
