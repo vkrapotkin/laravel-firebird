@@ -28,7 +28,7 @@ driver:
         'username' => env('DB_USERNAME', 'sysdba'),
         'password' => env('DB_PASSWORD', 'masterkey'),
         'charset'  => env('DB_CHARSET', 'UTF8'),
-        'role'  => null,
+        'role'     => null,
     ],
 
 ],
