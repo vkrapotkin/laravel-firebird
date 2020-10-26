@@ -90,7 +90,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileLimit(Builder $query, $limit)
     {
-        return ""; // Do not use
+        return ""; // The function compileColumns() is responsible to paginate query
     }
 
     /**
@@ -107,6 +107,7 @@ class FirebirdGrammar extends Grammar
             return;
         }
         $select = "Select ";
+        // In Firebird 1.5, the correct syntax of pagination is "Select first X skip Y from table" instead of "Select * from table rows X to Y"
         if($query->limit){
             $select . " first $query->limit";
         }
@@ -129,7 +130,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileOffset(Builder $query, $offset)
     {
-        return "";
+        return ""; // The function compileColumns() is responsible to paginate query
     }
 
     /**
