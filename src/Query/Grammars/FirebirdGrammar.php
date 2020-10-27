@@ -258,7 +258,7 @@ class FirebirdGrammar extends Grammar
         for ($i = 0; $i < ceil(count($where['values']) / $limit); $i++) {
             ($i !== 0) && $sql .= ' OR ';
 
-            $sql .= static::whereIn(
+            $sql .= $this->whereIn(
                 $query,
                 $this->sliceWhereValues($where, $i * $limit, $limit)
             );
