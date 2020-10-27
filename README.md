@@ -38,6 +38,9 @@ driver:
 To register this package in Lumen, you'll also need to add the following line to the service providers in your `config/app.php` file:
 `$app->register(\Firebird\FirebirdServiceProvider::class);`
 
+## Limitations
+This package does not support database migrations and it should not be used for this use case.
+
 ## Credits
 This package was originally forked from [acquestvanzuydam/laravel-firebird](https://github.com/jacquestvanzuydam/laravel-firebird) with enhancements from [sim1984/laravel-firebird](https://github.com/sim1984/laravel-firebird).
 
