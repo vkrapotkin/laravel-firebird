@@ -85,9 +85,14 @@ class Connection extends DatabaseConnection
         return $this->query()->fromProcedure($procedure, $values)->get();
     }
 
+    /**
+     * The Firebird database version that should be used when compiling queries.
+     *
+     * @return string
+     */
     protected function getFirebirdVersion()
     {
-        if (! $this->config['version']) {
+        if (! array_key_exists('version', $this->config)) {
             return Version::FIREBIRD_25;
         }
 
