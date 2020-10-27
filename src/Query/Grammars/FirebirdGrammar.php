@@ -18,6 +18,20 @@ class FirebirdGrammar extends Grammar
         'similar to', 'not similar to',
     ];
 
+    protected $selectComponents = [
+        'limit',
+        'offset',
+        'aggregate',
+        'columns',
+        'from',
+        'joins',
+        'wheres',
+        'groups',
+        'havings',
+        'orders',
+        'lock',
+    ];
+
     /**
      * Compile an aggregated select clause.
      *
@@ -76,13 +90,35 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileLimit(Builder $query, $limit)
     {
-        if ($query->offset) {
-            $first = (int) $query->offset + 1;
+        return ""; // The function compileColumns() is responsible to paginate query
+    }
 
-            return 'ROWS '.(int) $first;
-        } else {
-            return 'ROWS '.(int) $limit;
+    /**
+     * @param Builder $query
+     * @param array $columns
+     * @return string|null
+     */
+    protected function compileColumns(Builder $query, $columns)
+    {
+        // If the query is actually performing an aggregating select, we will let that
+        // compiler handle the building of the select clauses, as it will need some
+        // more syntax that is best handled by that function to keep things neat.
+        if (! is_null($query->aggregate)) {
+            return;
         }
+        $select = "Select ";
+        // In Firebird 1.5, the correct syntax of pagination is "Select first X skip Y from table" instead of "Select * from table rows X to Y"
+        if($query->limit){
+            $select . " first $query->limit";
+        }
+        if($query->offset){
+            $select . " skip $query->offset";
+        }
+
+        if ($query->distinct) {
+            $select = 'distinct ';
+        }
+        return $select . $this->columnize($columns);
     }
 
     /**
@@ -94,19 +130,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileOffset(Builder $query, $offset)
     {
-        if ($query->limit) {
-            if ($offset) {
-                $end = (int) $query->limit + (int) $offset;
-
-                return 'TO '.$end;
-            } else {
-                return '';
-            }
-        } else {
-            $begin = (int) $offset + 1;
-
-            return 'ROWS '.$begin.' TO 2147483647';
-        }
+        return ""; // The function compileColumns() is responsible to paginate query
     }
 
     /**
