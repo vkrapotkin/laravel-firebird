@@ -2,11 +2,19 @@
 
 namespace Firebird\Query\Grammars;
 
+use Firebird\Support\Version;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Grammars\Grammar;
 
 class FirebirdGrammar extends Grammar
 {
+    /**
+     * Firebird database version.
+     *
+     * @var string
+     */
+    protected $version;
+
     /**
      * All of the available clause operators.
      *
@@ -18,19 +26,15 @@ class FirebirdGrammar extends Grammar
         'similar to', 'not similar to',
     ];
 
-    protected $selectComponents = [
-        'limit',
-        'offset',
-        'aggregate',
-        'columns',
-        'from',
-        'joins',
-        'wheres',
-        'groups',
-        'havings',
-        'orders',
-        'lock',
-    ];
+    /**
+     * Create a new Firebird query grammar instance.
+     *
+     * @param string $version
+     */
+    public function __construct($version)
+    {
+        $this->version = $version;
+    }
 
     /**
      * Compile an aggregated select clause.
@@ -90,7 +94,19 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileLimit(Builder $query, $limit)
     {
-        return ''; // The function compileColumns() is responsible to paginate query
+        // The compileColumns() function handles query limits for v1.5 due to
+        // different query ordering.
+        if ($this->version == Version::FIREBIRD_15) {
+            return '';
+        }
+
+        if ($query->offset) {
+            $first = (int) $query->offset + 1;
+
+            return 'ROWS '.(int) $first;
+        } else {
+            return 'ROWS '.(int) $limit;
+        }
     }
 
     /**
@@ -100,23 +116,32 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileColumns(Builder $query, $columns)
     {
-        // If the query is actually performing an aggregating select, we will let that
-        // compiler handle the building of the select clauses, as it will need some
-        // more syntax that is best handled by that function to keep things neat.
+        if ($this->version != Version::FIREBIRD_15) {
+            // Use default logic for all Firebird versions not 1.5
+            return parent::compileColumns($query, $columns);
+        }
+
         if (! is_null($query->aggregate)) {
             return;
         }
-        $select = 'Select ';
-        // In Firebird 1.5, the correct syntax of pagination is "Select first X skip Y from table" instead of "Select * from table rows X to Y"
+
+        // In Firebird 1.5, the correct syntax of pagination is...
+        // "select first [num_rows] skip [start_row] * from table" instead of...
+        // "select * from table rows X to Y".
+        // Reference: http://mc-computing.com/Databases/Firebird/SQL.html
+
+        $select = 'select ';
+
         if ($query->limit) {
-            $select." first $query->limit";
+            $select .= 'first '.$query->limit.' ';
         }
+
         if ($query->offset) {
-            $select." skip $query->offset";
+            $select .= 'skip '.$query->offset.' ';
         }
 
         if ($query->distinct) {
-            $select = 'distinct ';
+            $select == 'distinct ';
         }
 
         return $select.$this->columnize($columns);
@@ -131,7 +156,44 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileOffset(Builder $query, $offset)
     {
-        return ''; // The function compileColumns() is responsible to paginate query
+        // The compileColumns() function handles query offsets for v1.5 due to
+        // different query ordering.
+        if ($this->version == Version::FIREBIRD_15) {
+            return '';
+        }
+
+        if ($query->limit) {
+            if ($offset) {
+                $end = (int) $query->limit + (int) $offset;
+
+                return 'TO '.$end;
+            } else {
+                return '';
+            }
+        } else {
+            $begin = (int) $offset + 1;
+
+            return 'ROWS '.$begin.' TO 2147483647';
+        }
+    }
+
+    /**
+     * Compile the components necessary for a select clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return array
+     */
+    protected function compileComponents(Builder $query)
+    {
+        // Use modified select components for Firebird v1.5
+        if ($this->version == Version::FIREBIRD_15) {
+            $this->selectComponents = [
+                'limit', 'offset', 'aggregate', 'columns', 'from', 'joins',
+                'wheres', 'groups', 'havings', 'orders', 'lock',
+            ];
+        }
+
+        return parent::compileComponents($query);
     }
 
     /**

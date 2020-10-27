@@ -2,10 +2,12 @@
 
 namespace Firebird;
 
+use Exception;
 use Firebird\Query\Builder as FirebirdQueryBuilder;
 use Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
 use Firebird\Schema\Builder as FirebirdSchemaBuilder;
 use Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
+use Firebird\Support\Version;
 use Illuminate\Database\Connection as DatabaseConnection;
 
 class Connection extends DatabaseConnection
@@ -17,7 +19,9 @@ class Connection extends DatabaseConnection
      */
     protected function getDefaultQueryGrammar()
     {
-        return new FirebirdQueryGrammar;
+        return new FirebirdQueryGrammar(
+            $this->getFirebirdVersion()
+        );
     }
 
     /**
@@ -79,5 +83,19 @@ class Connection extends DatabaseConnection
     public function executeProcedure($procedure, array $values = [])
     {
         return $this->query()->fromProcedure($procedure, $values)->get();
+    }
+
+    protected function getFirebirdVersion()
+    {
+        if (! $this->config['version']) {
+            return Version::FIREBIRD_25;
+        }
+
+        // Check the user has provided a supported version.
+        if (! in_array($this->config['version'], Version::SUPPORTED_VERSIONS)) {
+            throw new Exception('The Firebird version provided is not supported.');
+        }
+
+        return $this->config['version'];
     }
 }
