@@ -90,7 +90,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileLimit(Builder $query, $limit)
     {
-        return ""; // The function compileColumns() is responsible to paginate query
+        return ''; // The function compileColumns() is responsible to paginate query
     }
 
     /**
@@ -106,19 +106,20 @@ class FirebirdGrammar extends Grammar
         if (! is_null($query->aggregate)) {
             return;
         }
-        $select = "Select ";
+        $select = 'Select ';
         // In Firebird 1.5, the correct syntax of pagination is "Select first X skip Y from table" instead of "Select * from table rows X to Y"
-        if($query->limit){
-            $select . " first $query->limit";
+        if ($query->limit) {
+            $select." first $query->limit";
         }
-        if($query->offset){
-            $select . " skip $query->offset";
+        if ($query->offset) {
+            $select." skip $query->offset";
         }
 
         if ($query->distinct) {
             $select = 'distinct ';
         }
-        return $select . $this->columnize($columns);
+
+        return $select.$this->columnize($columns);
     }
 
     /**
@@ -130,7 +131,7 @@ class FirebirdGrammar extends Grammar
      */
     protected function compileOffset(Builder $query, $offset)
     {
-        return ""; // The function compileColumns() is responsible to paginate query
+        return ''; // The function compileColumns() is responsible to paginate query
     }
 
     /**
