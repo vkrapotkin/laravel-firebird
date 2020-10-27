@@ -141,7 +141,7 @@ class FirebirdGrammar extends Grammar
         }
 
         if ($query->distinct) {
-            $select == 'distinct ';
+            $select .= 'distinct ';
         }
 
         return $select.$this->columnize($columns);
