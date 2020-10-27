@@ -4,7 +4,8 @@ namespace Firebird;
 
 use Exception;
 use Firebird\Query\Builder as FirebirdQueryBuilder;
-use Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
+use Firebird\Query\Grammars\Firebird1Grammar as Firebird1QueryGrammar;
+use Firebird\Query\Grammars\Firebird2Grammar as Firebird2QueryGrammar;
 use Firebird\Schema\Builder as FirebirdSchemaBuilder;
 use Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
 use Firebird\Support\Version;
@@ -19,9 +20,11 @@ class Connection extends DatabaseConnection
      */
     protected function getDefaultQueryGrammar()
     {
-        return new FirebirdQueryGrammar(
-            $this->getFirebirdVersion()
-        );
+        if ($this->getFirebirdVersion() == Version::FIREBIRD_15) {
+            return new Firebird1QueryGrammar;
+        }
+
+        return new Firebird2QueryGrammar;
     }
 
     /**
