@@ -16,7 +16,7 @@ class Builder extends QueryBuilder
     public function fromProcedure(string $procedure, array $values = [])
     {
         $compiledProcedure = $this->grammar->compileProcedure($this, $procedure, $values);
-        
+
         // Remove any expressions from the values array, as they will have
         // already been evaluated by the grammar's parameterize() function.
         $values = array_filter($values, function ($value) {
