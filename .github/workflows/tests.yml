@@ -1,0 +1,56 @@
+name: Tests
+
+on:
+  [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        php: [8.0, 7.4]
+        laravel: [8.*, 7.*, 6.*]
+        stability: [prefer-lowest, prefer-stable]
+        include:
+          - laravel: 8.*
+            testbench: ^6.19
+          - laravel: 7.*
+            testbench: ^5.18
+          - laravel: 6.*
+            testbench: ^4.16
+
+    name: PHP ${{ matrix.php }}, Laravel ${{ matrix.laravel }}, ${{ matrix.stability }}
+
+    services:
+      firebird:
+        image: jacobalberty/firebird:2.5-sc
+        env:
+          FIREBIRD_DATABASE: 'database.fdb'
+          ISC_PASSWORD: 'masterkey'
+        ports:
+          - 3051:3050
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_firebird
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+
+      - name: Execute tests
+        run: vendor/bin/phpunit
+        env:
+          DB_HOST: firebird
+          DB_DATABASE: employee
