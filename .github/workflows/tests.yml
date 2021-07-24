@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         php: [8.0, 7.4]
         laravel: [8.*, 7.*, 6.*]
         stability: [prefer-lowest, prefer-stable]
@@ -21,7 +21,7 @@ jobs:
           - laravel: 6.*
             testbench: ^4.16
 
-    name: PHP ${{ matrix.php }}, Laravel ${{ matrix.laravel }}, ${{ matrix.stability }}, ${{ matrix.os }}
+    name: PHP ${{ matrix.php }}, Laravel ${{ matrix.laravel }}, ${{ matrix.stability }}
 
     services:
       firebird:
