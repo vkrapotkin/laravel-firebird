@@ -27,18 +27,16 @@ class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetup($app)
     {
-        $config = $app['config'];
-
-        $config->set('database.default', 'firebird');
-        $config->set('database.connections.firebird', [
+        config()->set('database.default', 'firebird');
+        config()->set('database.connections.firebird', [
             'driver' => 'firebird',
-            'host' => 'localhost',
-            'database' => '/storage/firebird/APPLICATION.FDB',
-            'username' => 'sysdba',
-            'password' => 'masterkey',
-            'charset' => 'UTF8',
-            'role' => 'RDB$ADMIN',
-            'engine_version' => '2.5.0',
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', '3051'),
+            'database' => env('DB_DATABASE', '/firebird/data/database.fdb'),
+            'username' => env('DB_USERNAME', 'sysdba'),
+            'password' => env('DB_PASSWORD', 'masterkey'),
+            'charset' => env('DB_CHARSET', 'UTF8'),
+            'version' => env('DB_VERSION', '2.5'),
         ]);
     }
 }
