@@ -30,7 +30,7 @@ jobs:
           FIREBIRD_DATABASE: 'database.fdb'
           ISC_PASSWORD: 'masterkey'
         ports:
-          - 3051:3050
+          - 3050:3050
 
     steps:
       - name: Checkout code
@@ -52,5 +52,4 @@ jobs:
       - name: Execute tests
         run: vendor/bin/phpunit
         env:
-          DB_HOST: firebird
           DB_DATABASE: employee
