@@ -122,6 +122,17 @@ class Firebird2Grammar extends Grammar
     }
 
     /**
+     * Wrap a union subquery in parentheses.
+     *
+     * @param  string  $sql
+     * @return string
+     */
+    protected function wrapUnion($sql)
+    {
+        return $sql;
+    }
+
+    /**
      * Compile a date based where clause.
      *
      * @param  string  $type
