@@ -33,6 +33,7 @@ class QueryTest extends TestCase
         $blueprint->string('state')->nullable();
         $blueprint->string('post_code')->nullable();
         $blueprint->string('country')->nullable();
+        $blueprint->timestamps();
 
         foreach ($blueprint->toSql($this->getConnection(), new FirebirdGrammar) as $sql) {
             DB::select($sql);
@@ -45,6 +46,7 @@ class QueryTest extends TestCase
         $blueprint->string('name');
         $blueprint->integer('price');
         $blueprint->integer('quantity');
+        $blueprint->timestamps();
         $blueprint->foreign('user_id')->references('id')->on('users');
 
         foreach ($blueprint->toSql($this->getConnection(), new FirebirdGrammar) as $sql) {
@@ -62,6 +64,8 @@ class QueryTest extends TestCase
                 'state' => $faker->state,
                 'post_code' => $faker->postcode,
                 'country' => $faker->country,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             DB::table('orders')->insert([
@@ -70,6 +74,8 @@ class QueryTest extends TestCase
                 'name' => $faker->word,
                 'price' => self::$productPrices[$id - 1],
                 'quantity' => $faker->numberBetween(0, 8),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }
