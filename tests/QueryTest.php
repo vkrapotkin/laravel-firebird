@@ -301,4 +301,111 @@ class QueryTest extends TestCase
 
         $this->assertCount(10, $results);
     }
+
+    /** @test */
+    public function it_can_execute_raw_order_by()
+    {
+        $results = DB::table('orders')
+            ->orderByRaw('"price" * "quantity" desc')
+            ->get();
+
+        $max = $results->first()->price * $results->first()->quantity;
+        $min = $results->last()->price * $results->last()->quantity;
+
+        $this->assertTrue($max > $min);
+    }
+
+    /** @test */
+    public function it_can_add_inner_join()
+    {
+        $results = DB::table('orders')
+            ->join('users', 'users.id', '=', 'orders.user_id')
+            ->get();
+
+        $this->assertCount(10, $results);
+        $this->assertObjectHasAttribute('name', $results->first());
+        $this->assertObjectHasAttribute('email', $results->first());
+        $this->assertObjectHasAttribute('state', $results->first());
+        $this->assertObjectHasAttribute('price', $results->first());
+        $this->assertObjectHasAttribute('quantity', $results->first());
+    }
+
+    /** @test */
+    public function it_can_add_inner_join_where()
+    {
+        $results = DB::table('orders')
+            ->join('users', function ($join) {
+                $join->on('users.id', '=', 'orders.user_id')
+                    ->where('orders.price', 100);
+            })
+            ->get();
+
+        $this->assertCount(2, $results);
+        $this->assertEquals(100, $results->first()->price);
+
+        $this->assertObjectHasAttribute('name', $results->first());
+        $this->assertObjectHasAttribute('email', $results->first());
+        $this->assertObjectHasAttribute('state', $results->first());
+        $this->assertObjectHasAttribute('price', $results->first());
+        $this->assertObjectHasAttribute('quantity', $results->first());
+    }
+
+    /** @test */
+    public function it_can_add_left_join()
+    {
+        $results = DB::table('orders')
+            ->leftJoin('users', function ($join) {
+                $join->on('users.id', '=', 'orders.user_id')
+                    ->where('orders.price', 100);
+            })
+            ->get();
+
+        $this->assertCount(10, $results);
+        $this->assertCount(0, $results->whereNull('price'));
+        $this->assertCount(8, $results->whereNull('email'));
+    }
+
+    /** @test */
+    public function it_can_add_right_join()
+    {
+        $results = DB::table('orders')
+            ->rightJoin('users', function ($join) {
+                $join->on('users.id', '=', 'orders.user_id')
+                    ->where('orders.price', 100);
+            })
+            ->get();
+
+        $this->assertCount(10, $results);
+        $this->assertCount(8, $results->whereNull('price'));
+        $this->assertCount(0, $results->whereNull('email'));
+    }
+
+    /** @test */
+    public function it_can_add_subquery_join()
+    {
+        $latestOrder = DB::table('orders')
+                   ->select('user_id', DB::raw('MAX("created_at") as "last_order_created_at"'))
+                   ->groupBy('user_id');
+
+        $user = DB::table('users')
+                ->joinSub($latestOrder, 'latest_order', function ($join) {
+                    $join->on('users.id', '=', 'latest_order.user_id');
+                })->first();
+
+        $this->assertNotNull($user->last_order_created_at);
+    }
+
+    /** @test */
+    public function it_can_union_queries()
+    {
+        $first = DB::table('orders')
+            ->where('price', 100);
+
+        $orders = DB::table('orders')
+                    ->where('price', 16)
+                    ->union($first)
+                    ->get();
+
+        $this->assertCount(4, $orders);
+    }
 }
