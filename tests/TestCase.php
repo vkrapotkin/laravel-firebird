@@ -3,10 +3,20 @@
 namespace Firebird\Tests;
 
 use Firebird\FirebirdServiceProvider;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        Factory::guessFactoryNamesUsing(function ($class) {
+            return 'Firebird\\Tests\\Support\\Factories\\'.class_basename($class).'Factory';
+        });
+    }
+
     /**
      * Load package service provider.
      *
