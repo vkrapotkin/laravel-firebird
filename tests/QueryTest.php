@@ -4,15 +4,15 @@ namespace Firebird\Tests;
 
 use Firebird\Tests\Support\Factories\OrderFactory;
 use Firebird\Tests\Support\Factories\UserFactory;
+use Firebird\Tests\Support\Models\Order;
 use Firebird\Tests\Support\Models\User;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class QueryTest extends TestCase
 {
-    public static array $productPrices = [5, 16, 16, 32, 57, 81, 100, 100, 106, 255];
-
     public function setUp(): void
     {
         parent::setUp();
@@ -58,39 +58,27 @@ class QueryTest extends TestCase
         }
     }
 
-    public function seedTables(): void
-    {
-        User::factory()
-            ->hasOrders(1, fn ($attributes) => [
-                'price' => self::$productPrices[$attributes['id'] - 1],
-            ])
-            ->count(10)
-            ->create();
-    }
-
     /** @test */
     public function it_has_the_correct_connection()
     {
-        $this->seedTables();
-
         $this->assertEquals('firebird', DB::getDefaultConnection());
     }
 
     /** @test */
     public function it_can_get()
     {
-        $this->seedTables();
+        Order::factory()->count(3)->create();
 
         $users = DB::table('users')->get();
 
-        $this->assertCount(10, $users);
+        $this->assertCount(3, $users);
         $this->assertInstanceOf(Collection::class, $users);
         $this->assertIsObject($users->first());
         $this->assertIsArray($users->toArray());
 
         $orders = DB::table('orders')->get();
 
-        $this->assertCount(10, $orders);
+        $this->assertCount(3, $orders);
         $this->assertInstanceOf(Collection::class, $orders);
         $this->assertIsObject($orders->first());
         $this->assertIsArray($orders->toArray());
@@ -99,72 +87,90 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_select()
     {
-        $this->seedTables();
+        User::factory()->create([
+            'name' => 'Anna',
+            'city' => 'Sydney',
+            'country' => 'Australia',
+        ]);
 
-        $results = DB::table('users')
+        $result = DB::table('users')
             ->select(['name', 'city', 'country'])
-            ->get();
-
-        $result = $results->random();
+            ->first();
 
         $this->assertCount(3, (array) $result);
+
         $this->assertObjectHasAttribute('name', $result);
         $this->assertObjectHasAttribute('city', $result);
         $this->assertObjectHasAttribute('country', $result);
+
+        $this->assertEquals('Anna', $result->name);
+        $this->assertEquals('Sydney', $result->city);
+        $this->assertEquals('Australia', $result->country);
     }
 
     /** @test */
     public function it_can_select_with_aliases()
     {
-        $this->seedTables();
+        User::factory()->create([
+            'name' => 'Anna',
+            'city' => 'Sydney',
+            'country' => 'Australia',
+        ]);
 
-        $results = DB::table('users')
+        $result = DB::table('users')
             ->select([
                 'name as USER_NAME',
                 'city as user_city',
                 'country as User_Country',
             ])
-            ->get();
-
-        $result = $results->random();
+            ->first();
 
         $this->assertCount(3, (array) $result);
+
         $this->assertObjectHasAttribute('USER_NAME', $result);
         $this->assertObjectHasAttribute('user_city', $result);
         $this->assertObjectHasAttribute('User_Country', $result);
+
+        $this->assertEquals('Anna', $result->USER_NAME);
+        $this->assertEquals('Sydney', $result->user_city);
+        $this->assertEquals('Australia', $result->User_Country);
     }
 
     /** @test */
     public function it_can_select_distinct()
     {
-        $this->seedTables();
+        Order::factory()->count(1)->create(['price' => 10]);
+        Order::factory()->count(10)->create(['price' => 50]);
+        Order::factory()->count(5)->create(['price' => 100]);
 
         $results = DB::table('orders')->select('price')->distinct()->get();
 
-        $uniquePricesCount = count(array_unique(self::$productPrices));
-        $this->assertCount($uniquePricesCount, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_filter_where_with_results()
     {
-        $this->seedTables();
+        User::factory()->count(5)->create(['name' => 'Frank']);
+        User::factory()->count(2)->create(['name' => 'Inigo']);
+        User::factory()->count(7)->create(['name' => 'Ashley']);
 
         $results = DB::table('users')
-            ->where('id', 5)
+            ->where('name', 'Frank')
             ->get();
 
-        $this->assertCount(1, $results);
-        $this->assertEquals(5, $results->first()->id);
+        $this->assertCount(5, $results);
+        $this->assertCount(1, $results->pluck('name')->unique());
+        $this->assertEquals('Frank', $results->random()->name);
     }
 
     /** @test */
     public function it_can_filter_where_without_results()
     {
-        $this->seedTables();
+        User::factory()->count(25)->create();
 
         $results = DB::table('users')
-            ->where('id', 2147483647)
+            ->where('id', 26)
             ->get();
 
         $this->assertCount(0, $results);
@@ -176,19 +182,43 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_gt()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(8)
+            ->state(new Sequence(
+                ['price' => 5],
+                ['price' => 25],
+                ['price' => 50],
+                ['price' => 99],
+                ['price' => 100],
+                ['price' => 101],
+                ['price' => 150],
+                ['price' => 200],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->where('price', '>', 100)
             ->get();
 
-        $this->assertCount(2, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_filter_where_gte()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(8)
+            ->state(new Sequence(
+                ['price' => 5],
+                ['price' => 25],
+                ['price' => 50],
+                ['price' => 99],
+                ['price' => 100],
+                ['price' => 101],
+                ['price' => 150],
+                ['price' => 200],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->where('price', '>=', 100)
@@ -200,78 +230,133 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_lt()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(8)
+            ->state(new Sequence(
+                ['price' => 5],
+                ['price' => 25],
+                ['price' => 50],
+                ['price' => 99],
+                ['price' => 100],
+                ['price' => 101],
+                ['price' => 150],
+                ['price' => 200],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->where('price', '<', 100)
             ->get();
 
-        $this->assertCount(6, $results);
+        $this->assertCount(4, $results);
     }
 
     /** @test */
     public function it_can_filter_where_lte()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(8)
+            ->state(new Sequence(
+                ['price' => 5],
+                ['price' => 25],
+                ['price' => 50],
+                ['price' => 99],
+                ['price' => 100],
+                ['price' => 101],
+                ['price' => 150],
+                ['price' => 200],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->where('price', '<=', 100)
             ->get();
 
-        $this->assertCount(8, $results);
+        $this->assertCount(5, $results);
     }
 
     /** @test */
     public function it_can_filter_where_not_equal()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(8)
+            ->state(new Sequence(
+                ['price' => 5],
+                ['price' => 25],
+                ['price' => 50],
+                ['price' => 99],
+                ['price' => 100],
+                ['price' => 101],
+                ['price' => 150],
+                ['price' => 200],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->where('price', '!=', 100)
             ->get();
 
-        $this->assertCount(8, $results);
+        $this->assertCount(7, $results);
 
         $results = DB::table('orders')
             ->where('price', '<>', 100)
-            ->get();
-
-        $this->assertCount(8, $results);
-    }
-
-    /** @test */
-    public function it_can_filter_where_like()
-    {
-        $this->seedTables();
-
-        $results = DB::table('orders')
-            ->where('price', 'like', '10%')
-            ->get();
-
-        $this->assertCount(3, $results);
-    }
-
-    /** @test */
-    public function it_can_filter_where_not_like()
-    {
-        $this->seedTables();
-
-        $results = DB::table('orders')
-            ->where('price', 'not like', '10%')
             ->get();
 
         $this->assertCount(7, $results);
     }
 
     /** @test */
+    public function it_can_filter_where_like()
+    {
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'like', 'Shirt%')
+            ->get();
+
+        $this->assertCount(3, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'like', '%Small')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_like()
+    {
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'not like', 'Shirt%')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
     public function it_can_filter_where_array()
     {
-        $this->seedTables();
+        Order::factory()->create(['name' => 'Pants Small', 'price' => 60]);
+        Order::factory()->create(['name' => 'Pants Large', 'price' => 80]);
+        Order::factory()->create(['name' => 'Shirt Small', 'price' => 50]);
+        Order::factory()->create(['name' => 'Shirt Medium', 'price' => 60]);
+        Order::factory()->create(['name' => 'Shirt Large', 'price' => 70]);
 
         $results = DB::table('orders')
             ->where([
-                ['id', '>', 7],
-                ['price', '=', 100],
+                ['price', '>=', 60],
+                ['name', 'like', '%Large%'],
+                ['name', 'not like', '%Pants%'],
             ])
             ->get();
 
@@ -281,26 +366,40 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_or_where()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(8)
+            ->state(new Sequence(
+                ['price' => 5],
+                ['price' => 25],
+                ['price' => 50],
+                ['price' => 99],
+                ['price' => 100],
+                ['price' => 100],
+                ['price' => 150],
+                ['price' => 200],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->where('price', 100)
-            ->orWhere('price', 16)
+            ->orWhere('price', 5)
             ->get();
 
-        $this->assertCount(4, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_filter_grouped_or_where()
     {
-        $this->seedTables();
+        Order::factory()->count(2)->create(['price' => 100]);
+        Order::factory()->create(['price' => 25, 'quantity' => 1]);
+        Order::factory()->create(['price' => 30, 'quantity' => 3]);
 
         $results = DB::table('orders')
-            ->where('price', '>', 100)
+            ->where('price', '>=', 100)
             ->orWhere(function ($query) {
-                $query->where('user_id', 3)
-                    ->where('price', '>', 10);
+                $query->where('price', '>', 10)
+                    ->where('quantity', '>', 2);
             })
             ->get();
 
@@ -310,55 +409,67 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_in()
     {
-        $this->seedTables();
+        Order::factory()->count(1)->create(['price' => 75]);
+        Order::factory()->count(3)->create(['price' => 100]);
+        Order::factory()->count(5)->create(['price' => 125]);
 
-        $results = DB::table('users')
-            ->whereIn('id', [2, 5])
+        $results = DB::table('orders')
+            ->whereIn('price', [100, 125])
             ->get();
 
-        $this->assertCount(2, $results);
+        $this->assertCount(8, $results);
     }
 
     /** @test */
     public function it_can_filter_where_not_in()
     {
-        $this->seedTables();
+        Order::factory()->count(1)->create(['price' => 75]);
+        Order::factory()->count(3)->create(['price' => 100]);
+        Order::factory()->count(5)->create(['price' => 125]);
 
-        $results = DB::table('users')
-            ->whereNotIn('id', [2, 5])
+        $results = DB::table('orders')
+            ->whereNotIn('price', [100, 125])
             ->get();
 
-        $this->assertCount(8, $results);
+        $this->assertCount(1, $results);
     }
 
     /** @test */
     public function it_can_filter_where_between()
     {
-        $this->seedTables();
+        Order::factory()->create(['price' => 10]);
+        Order::factory()->create(['price' => 20]);
+        Order::factory()->create(['price' => 30]);
+        Order::factory()->create(['price' => 40]);
+        Order::factory()->create(['price' => 50]);
 
         $results = DB::table('orders')
             ->whereBetween('price', [30, 60])
+            ->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_between()
+    {
+        Order::factory()->create(['price' => 10]);
+        Order::factory()->create(['price' => 20]);
+        Order::factory()->create(['price' => 30]);
+        Order::factory()->create(['price' => 40]);
+        Order::factory()->create(['price' => 50]);
+
+        $results = DB::table('orders')
+            ->whereNotBetween('price', [30, 60])
             ->get();
 
         $this->assertCount(2, $results);
     }
 
     /** @test */
-    public function it_can_filter_where_not_between()
-    {
-        $this->seedTables();
-
-        $results = DB::table('orders')
-            ->whereNotBetween('price', [30, 60])
-            ->get();
-
-        $this->assertCount(8, $results);
-    }
-
-    /** @test */
     public function it_can_filter_where_null()
     {
-        $this->seedTables();
+        Order::factory()->count(10)->create();
 
         $results = DB::table('orders')
             ->whereNull('deleted_at')
@@ -370,7 +481,7 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_not_null()
     {
-        $this->seedTables();
+        Order::factory()->count(10)->create();
 
         $results = DB::table('orders')
             ->whereNotNull('created_at')
@@ -382,8 +493,6 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_date()
     {
-        $this->seedTables();
-
         $this->markTestSkipped('The necessary grammar for whereDate() has not been implemented.');
 
         $results = DB::table('orders')
@@ -396,8 +505,6 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_time()
     {
-        $this->seedTables();
-
         $this->markTestSkipped('The necessary grammar for whereTime() has not been implemented.');
 
         $results = DB::table('orders')
@@ -410,43 +517,47 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_day()
     {
-        $this->seedTables();
+        Order::factory()->count(3)->create(['created_at' => now()]);
+        Order::factory()->count(5)->create(['created_at' => now()->subDay()]);
 
         $results = DB::table('orders')
             ->whereDay('created_at', now())
             ->get();
 
-        $this->assertCount(10, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_filter_where_month()
     {
-        $this->seedTables();
+        Order::factory()->count(3)->create(['created_at' => now()]);
+        Order::factory()->count(5)->create(['created_at' => now()->subMonth()]);
 
         $results = DB::table('orders')
             ->whereMonth('created_at', now())
             ->get();
 
-        $this->assertCount(10, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_filter_where_year()
     {
-        $this->seedTables();
+        Order::factory()->count(3)->create(['created_at' => now()]);
+        Order::factory()->count(5)->create(['created_at' => now()->subYear()]);
 
         $results = DB::table('orders')
             ->whereYear('created_at', now())
             ->get();
 
-        $this->assertCount(10, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_filter_where_exists()
     {
-        $this->seedTables();
+        Order::factory()->count(2)->create(['price' => 120]);
+        Order::factory()->count(3)->create(['price' => 80]);
 
         $results = DB::table('users')
             ->whereExists(function ($query) {
@@ -463,7 +574,9 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_subquery_where()
     {
-        $this->seedTables();
+        Order::factory()->count(2)->create(['price' => 100]);
+        Order::factory()->count(3)->create(['price' => 80]);
+        Order::factory()->count(6)->create(['price' => 120]);
 
         $results = DB::table('users')
             ->where(function ($query) {
@@ -480,51 +593,59 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_order_by_asc()
     {
-        $this->seedTables();
+        Order::factory()->create(['created_at' => now()->subMonths(2)]);
+        Order::factory()->create(['created_at' => now()->subMonths(1)]);
+        Order::factory()->create(['created_at' => now()]);
 
         $results = DB::table('users')->orderBy('id')->get();
 
         $this->assertEquals(1, $results->first()->id);
-        $this->assertEquals(10, $results->last()->id);
+        $this->assertEquals(3, $results->last()->id);
     }
 
     /** @test */
     public function it_can_order_by_desc()
     {
-        $this->seedTables();
+        Order::factory()->create(['created_at' => now()->subMonths(2)]);
+        Order::factory()->create(['created_at' => now()->subMonths(1)]);
+        Order::factory()->create(['created_at' => now()]);
 
         $results = DB::table('users')->orderByDesc('id')->get();
 
-        $this->assertEquals(10, $results->first()->id);
+        $this->assertEquals(3, $results->first()->id);
         $this->assertEquals(1, $results->last()->id);
     }
 
     /** @test */
     public function it_can_order_latest()
     {
-        $this->seedTables();
+        Order::factory()->create(['created_at' => now()->subMonths(2)]);
+        Order::factory()->create(['created_at' => now()->subMonths(1)]);
+        Order::factory()->create(['created_at' => now()]);
 
         $results = DB::table('users')->latest()->get();
 
-        $this->assertEquals(10, $results->first()->id);
+        $this->assertEquals(3, $results->first()->id);
         $this->assertEquals(1, $results->last()->id);
     }
 
     /** @test */
     public function it_can_order_oldest()
     {
-        $this->seedTables();
+        Order::factory()->create(['created_at' => now()->subMonths(2)]);
+        Order::factory()->create(['created_at' => now()->subMonths(1)]);
+        Order::factory()->create(['created_at' => now()]);
 
         $results = DB::table('users')->oldest()->get();
 
         $this->assertEquals(1, $results->first()->id);
-        $this->assertEquals(10, $results->last()->id);
+        $this->assertEquals(3, $results->last()->id);
     }
 
     /** @test */
     public function it_can_return_random_order()
     {
-        $this->seedTables();
+        User::factory()->count(25)->create();
 
         $resultsA = DB::table('users')->inRandomOrder()->get();
         $resultsB = DB::table('users')->inRandomOrder()->get();
@@ -538,7 +659,7 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_remove_existing_orderings()
     {
-        $this->seedTables();
+        Order::factory()->count(10)->create();
 
         $query = DB::table('users')->orderByDesc('id');
 
@@ -556,7 +677,7 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_pluck()
     {
-        $this->seedTables();
+        Order::factory()->count(10)->create();
 
         $results = DB::table('users')->pluck('id');
 
@@ -569,7 +690,7 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_count()
     {
-        $this->seedTables();
+        Order::factory()->count(10)->create();
 
         $count = DB::table('orders')->count();
 
@@ -579,48 +700,83 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_aggregate_max()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(5)
+            ->state(new Sequence(
+                ['price' => 68],
+                ['price' => 92],
+                ['price' => 12],
+                ['price' => 37],
+                ['price' => 54],
+            ))
+            ->create();
 
         $price = DB::table('orders')->max('price');
 
-        $this->assertEquals(max(self::$productPrices), $price);
+        $this->assertEquals(92, $price);
     }
 
     /** @test */
     public function it_can_aggregate_min()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(5)
+            ->state(new Sequence(
+                ['price' => 68],
+                ['price' => 92],
+                ['price' => 12],
+                ['price' => 37],
+                ['price' => 54],
+            ))
+            ->create();
 
         $price = DB::table('orders')->min('price');
 
-        $this->assertEquals(min(self::$productPrices), $price);
+        $this->assertEquals(12, $price);
     }
 
     /** @test */
     public function it_can_aggregate_average()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(5)
+            ->state(new Sequence(
+                ['price' => 68],
+                ['price' => 92],
+                ['price' => 12],
+                ['price' => 37],
+                ['price' => 54],
+            ))
+            ->create();
 
         $price = DB::table('orders')->avg('price');
 
-        $expectedAverage = array_sum(self::$productPrices) / count(array_filter(self::$productPrices));
-        $this->assertEquals((int) $expectedAverage, $price);
+        $this->assertEquals((int) 52.6, $price);
     }
 
     /** @test */
     public function it_can_aggregate_sum()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(5)
+            ->state(new Sequence(
+                ['price' => 68],
+                ['price' => 92],
+                ['price' => 12],
+                ['price' => 37],
+                ['price' => 54],
+            ))
+            ->create();
 
         $price = DB::table('orders')->sum('price');
 
-        $this->assertEquals(array_sum(self::$productPrices), $price);
+        $this->assertEquals(263, $price);
     }
 
     /** @test */
     public function it_can_check_exists()
     {
-        $this->seedTables();
+        User::factory()->create();
 
         $this->assertTrue(DB::table('users')->where('id', 1)->exists());
         $this->assertFalse(DB::table('users')->where('id', null)->exists());
@@ -629,26 +785,40 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_expressions()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(6)
+            ->state(new Sequence(
+                ['price' => 50],
+                ['price' => 50],
+                ['price' => 70],
+                ['price' => 90],
+                ['price' => 90],
+                ['price' => 90],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->select(DB::raw('count(*) as "price_count", "price"'))
             ->groupBy('price')
             ->get();
 
-        $productPricesValueCount = array_count_values(self::$productPrices);
-
-        $this->assertCount(count($productPricesValueCount), $results);
-
-        foreach ($results as $result) {
-            $this->assertEquals($productPricesValueCount[$result->price], $result->price_count);
-        }
+        $this->assertCount(3, $results);
+        $this->assertEquals(2, $results->where('price', 50)->first()->price_count);
+        $this->assertEquals(1, $results->where('price', 70)->first()->price_count);
+        $this->assertEquals(3, $results->where('price', 90)->first()->price_count);
     }
 
     /** @test */
     public function it_can_execute_raw_select()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(3)
+            ->state(new Sequence(
+                ['price' => 50],
+                ['price' => 70],
+                ['price' => 90],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->selectRaw('"price", "price" * 1.1 as "price_with_tax"')
@@ -662,19 +832,27 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_where()
     {
-        $this->seedTables();
+        User::factory()->count(3)->create();
+        User::factory()->create(['city' => null]);
 
-        $results = DB::table('orders')
-            ->whereRaw('"name" is not null')
+        $results = DB::table('users')
+            ->whereRaw('"city" is not null')
             ->get();
 
-        $this->assertCount(10, $results);
+        $this->assertCount(3, $results);
     }
 
     /** @test */
     public function it_can_execute_raw_order_by()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(3)
+            ->state(new Sequence(
+                ['price' => 50, 'quantity' => 10],
+                ['price' => 70, 'quantity' => 5],
+                ['price' => 90, 'quantity' => 1],
+            ))
+            ->create();
 
         $results = DB::table('orders')
             ->orderByRaw('"price" * "quantity" desc')
@@ -683,13 +861,14 @@ class QueryTest extends TestCase
         $max = $results->first()->price * $results->first()->quantity;
         $min = $results->last()->price * $results->last()->quantity;
 
-        $this->assertTrue($max > $min);
+        $this->assertEquals(500, $max);
+        $this->assertEquals(90, $min);
     }
 
     /** @test */
     public function it_can_add_inner_join()
     {
-        $this->seedTables();
+        Order::factory()->count(10)->create();
 
         $results = DB::table('orders')
             ->join('users', 'users.id', '=', 'orders.user_id')
@@ -706,7 +885,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_inner_join_where()
     {
-        $this->seedTables();
+        Order::factory()->count(2)->create(['price' => 100]);
+        Order::factory()->count(3)->create(['price' => 50]);
 
         $results = DB::table('orders')
             ->join('users', function ($join) {
@@ -728,7 +908,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_left_join()
     {
-        $this->seedTables();
+        Order::factory()->count(2)->create(['price' => 100]);
+        Order::factory()->count(3)->create(['price' => 50]);
 
         $results = DB::table('orders')
             ->leftJoin('users', function ($join) {
@@ -737,15 +918,16 @@ class QueryTest extends TestCase
             })
             ->get();
 
-        $this->assertCount(10, $results);
+        $this->assertCount(5, $results);
         $this->assertCount(0, $results->whereNull('price'));
-        $this->assertCount(8, $results->whereNull('email'));
+        $this->assertCount(3, $results->whereNull('email'));
     }
 
     /** @test */
     public function it_can_add_right_join()
     {
-        $this->seedTables();
+        Order::factory()->count(2)->create(['price' => 100]);
+        Order::factory()->count(3)->create(['price' => 50]);
 
         $results = DB::table('orders')
             ->rightJoin('users', function ($join) {
@@ -754,15 +936,15 @@ class QueryTest extends TestCase
             })
             ->get();
 
-        $this->assertCount(10, $results);
-        $this->assertCount(8, $results->whereNull('price'));
+        $this->assertCount(5, $results);
+        $this->assertCount(3, $results->whereNull('price'));
         $this->assertCount(0, $results->whereNull('email'));
     }
 
     /** @test */
     public function it_can_add_subquery_join()
     {
-        $this->seedTables();
+        Order::factory()->create();
 
         $latestOrder = DB::table('orders')
                    ->select('user_id', DB::raw('MAX("created_at") as "last_order_created_at"'))
@@ -779,7 +961,16 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_union_queries()
     {
-        $this->seedTables();
+        Order::factory()
+            ->count(5)
+            ->state(new Sequence(
+                ['price' => 110],
+                ['price' => 100],
+                ['price' => 100],
+                ['price' => 80],
+                ['price' => 16],
+            ))
+            ->create();
 
         $first = DB::table('orders')
             ->where('price', 100);
@@ -789,6 +980,6 @@ class QueryTest extends TestCase
                     ->union($first)
                     ->get();
 
-        $this->assertCount(4, $orders);
+        $this->assertCount(3, $orders);
     }
 }
