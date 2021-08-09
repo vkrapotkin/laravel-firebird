@@ -4,7 +4,7 @@
 [![Total Downloads](https://poser.pugx.org/harrygulliford/laravel-firebird/downloads)](https://packagist.org/packages/harrygulliford/laravel-firebird)
 [![License](https://poser.pugx.org/harrygulliford/laravel-firebird/license)](https://packagist.org/packages/harrygulliford/laravel-firebird)
 
-This package adds support for the Firebird PDO driver in Laravel applications. Support for Laravel 6+ with PHP 7.2+ and Firebird 1.5 or 2.5
+This package adds support for the Firebird PDO driver in Laravel applications. Support for Laravel 8+ with PHP 7.4+ and Firebird 1.5 or 2.5
 
 ## Installation
 
@@ -43,7 +43,8 @@ To register this package in Lumen, you'll also need to add the following line to
 This package does not support database migrations and it should not be used for this use case.
 
 ## Credits
-This package was originally forked from [jacquestvanzuydam/laravel-firebird](https://github.com/jacquestvanzuydam/laravel-firebird) with enhancements from [sim1984/laravel-firebird](https://github.com/sim1984/laravel-firebird).
+- [jacquestvanzuydam/laravel-firebird](https://github.com/jacquestvanzuydam/laravel-firebird)
+- [sim1984/laravel-firebird](https://github.com/sim1984/laravel-firebird)
 
 ## License
 Licensed under the [MIT](https://choosealicense.com/licenses/mit/) licence.
