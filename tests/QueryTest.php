@@ -19,7 +19,6 @@ class QueryTest extends TestCase
 
         $this->dropTables();
         $this->createTables();
-        $this->seedTables();
     }
 
     public function tearDown(): void
@@ -72,23 +71,36 @@ class QueryTest extends TestCase
     /** @test */
     public function it_has_the_correct_connection()
     {
+        $this->seedTables();
+
         $this->assertEquals('firebird', DB::getDefaultConnection());
     }
 
     /** @test */
     public function it_can_get()
     {
-        $results = DB::table('users')->get();
+        $this->seedTables();
 
-        $this->assertCount(10, $results);
-        $this->assertInstanceOf(Collection::class, $results);
-        $this->assertIsObject($results->first());
-        $this->assertIsArray($results->toArray());
+        $users = DB::table('users')->get();
+
+        $this->assertCount(10, $users);
+        $this->assertInstanceOf(Collection::class, $users);
+        $this->assertIsObject($users->first());
+        $this->assertIsArray($users->toArray());
+
+        $orders = DB::table('orders')->get();
+
+        $this->assertCount(10, $orders);
+        $this->assertInstanceOf(Collection::class, $orders);
+        $this->assertIsObject($orders->first());
+        $this->assertIsArray($orders->toArray());
     }
 
     /** @test */
     public function it_can_select()
     {
+        $this->seedTables();
+
         $results = DB::table('users')
             ->select(['name', 'city', 'country'])
             ->get();
@@ -104,6 +116,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_select_with_aliases()
     {
+        $this->seedTables();
+
         $results = DB::table('users')
             ->select([
                 'name as USER_NAME',
@@ -123,6 +137,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_select_distinct()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')->select('price')->distinct()->get();
 
         $uniquePricesCount = count(array_unique(self::$productPrices));
@@ -132,6 +148,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_with_results()
     {
+        $this->seedTables();
+
         $results = DB::table('users')
             ->where('id', 5)
             ->get();
@@ -143,8 +161,10 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_without_results()
     {
+        $this->seedTables();
+
         $results = DB::table('users')
-            ->where('id', 5000)
+            ->where('id', 2147483647)
             ->get();
 
         $this->assertCount(0, $results);
@@ -156,6 +176,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_in()
     {
+        $this->seedTables();
+
         $results = DB::table('users')
             ->whereIn('id', [2, 5])
             ->get();
@@ -166,6 +188,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_order_by_asc()
     {
+        $this->seedTables();
+
         $results = DB::table('users')->orderBy('id')->get();
 
         $this->assertEquals(1, $results->first()->id);
@@ -175,6 +199,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_order_by_desc()
     {
+        $this->seedTables();
+
         $results = DB::table('users')->orderByDesc('id')->get();
 
         $this->assertEquals(10, $results->first()->id);
@@ -184,6 +210,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_pluck()
     {
+        $this->seedTables();
+
         $results = DB::table('users')->pluck('id');
 
         $this->assertCount(10, $results);
@@ -195,6 +223,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_count()
     {
+        $this->seedTables();
+
         $count = DB::table('orders')->count();
 
         $this->assertEquals(10, $count);
@@ -203,6 +233,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_aggregate_max()
     {
+        $this->seedTables();
+
         $price = DB::table('orders')->max('price');
 
         $this->assertEquals(max(self::$productPrices), $price);
@@ -211,6 +243,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_aggregate_min()
     {
+        $this->seedTables();
+
         $price = DB::table('orders')->min('price');
 
         $this->assertEquals(min(self::$productPrices), $price);
@@ -219,6 +253,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_aggregate_average()
     {
+        $this->seedTables();
+
         $price = DB::table('orders')->avg('price');
 
         $expectedAverage = array_sum(self::$productPrices) / count(array_filter(self::$productPrices));
@@ -228,6 +264,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_aggregate_sum()
     {
+        $this->seedTables();
+
         $price = DB::table('orders')->sum('price');
 
         $this->assertEquals(array_sum(self::$productPrices), $price);
@@ -236,6 +274,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_check_exists()
     {
+        $this->seedTables();
+
         $this->assertTrue(DB::table('users')->where('id', 1)->exists());
         $this->assertFalse(DB::table('users')->where('id', null)->exists());
     }
@@ -243,6 +283,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_expressions()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->select(DB::raw('count(*) as "price_count", "price"'))
             ->groupBy('price')
@@ -260,6 +302,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_select()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->selectRaw('"price", "price" * 1.1 as "price_with_tax"')
             ->get();
@@ -272,6 +316,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_where()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->whereRaw('"name" is not null')
             ->get();
@@ -282,6 +328,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_order_by()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->orderByRaw('"price" * "quantity" desc')
             ->get();
@@ -295,6 +343,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_inner_join()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->join('users', 'users.id', '=', 'orders.user_id')
             ->get();
@@ -310,6 +360,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_inner_join_where()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->join('users', function ($join) {
                 $join->on('users.id', '=', 'orders.user_id')
@@ -330,6 +382,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_left_join()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->leftJoin('users', function ($join) {
                 $join->on('users.id', '=', 'orders.user_id')
@@ -345,6 +399,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_right_join()
     {
+        $this->seedTables();
+
         $results = DB::table('orders')
             ->rightJoin('users', function ($join) {
                 $join->on('users.id', '=', 'orders.user_id')
@@ -360,6 +416,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_add_subquery_join()
     {
+        $this->seedTables();
+
         $latestOrder = DB::table('orders')
                    ->select('user_id', DB::raw('MAX("created_at") as "last_order_created_at"'))
                    ->groupBy('user_id');
@@ -375,6 +433,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_union_queries()
     {
+        $this->seedTables();
+
         $first = DB::table('orders')
             ->where('price', 100);
 
