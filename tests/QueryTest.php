@@ -174,12 +174,304 @@ class QueryTest extends TestCase
     }
 
     /** @test */
+    public function it_can_filter_where_gt()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', '>', 100)
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_gte()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', '>=', 100)
+            ->get();
+
+        $this->assertCount(4, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_lt()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', '<', 100)
+            ->get();
+
+        $this->assertCount(6, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_lte()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', '<=', 100)
+            ->get();
+
+        $this->assertCount(8, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_equal()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', '!=', 100)
+            ->get();
+
+        $this->assertCount(8, $results);
+
+        $results = DB::table('orders')
+            ->where('price', '<>', 100)
+            ->get();
+
+        $this->assertCount(8, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_like()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', 'like', '10%')
+            ->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_like()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', 'not like', '10%')
+            ->get();
+
+        $this->assertCount(7, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_array()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where([
+                ['id', '>', 7],
+                ['price', '=', 100],
+            ])
+            ->get();
+
+        $this->assertCount(1, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_or_where()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', 100)
+            ->orWhere('price', 16)
+            ->get();
+
+        $this->assertCount(4, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_grouped_or_where()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->where('price', '>', 100)
+            ->orWhere(function ($query) {
+                $query->where('user_id', 3)
+                    ->where('price', '>', 10);
+            })
+            ->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    /** @test */
     public function it_can_filter_where_in()
     {
         $this->seedTables();
 
         $results = DB::table('users')
             ->whereIn('id', [2, 5])
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_in()
+    {
+        $this->seedTables();
+
+        $results = DB::table('users')
+            ->whereNotIn('id', [2, 5])
+            ->get();
+
+        $this->assertCount(8, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_between()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereBetween('price', [30, 60])
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_between()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereNotBetween('price', [30, 60])
+            ->get();
+
+        $this->assertCount(8, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_null()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereNull('deleted_at')
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_null()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereNotNull('created_at')
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_date()
+    {
+        $this->seedTables();
+
+        $this->markTestSkipped('The necessary grammar for whereDate() has not been implemented.');
+
+        $results = DB::table('orders')
+            ->whereDate('created_at', now())
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_time()
+    {
+        $this->seedTables();
+
+        $this->markTestSkipped('The necessary grammar for whereTime() has not been implemented.');
+
+        $results = DB::table('orders')
+            ->whereTime('created_at', now())
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_day()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereDay('created_at', now())
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_month()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereMonth('created_at', now())
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_year()
+    {
+        $this->seedTables();
+
+        $results = DB::table('orders')
+            ->whereYear('created_at', now())
+            ->get();
+
+        $this->assertCount(10, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_exists()
+    {
+        $this->seedTables();
+
+        $results = DB::table('users')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('orders')
+                    ->whereColumn('orders.user_id', 'users.id')
+                    ->where('price', '>', 100);
+            })
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_subquery_where()
+    {
+        $this->seedTables();
+
+        $results = DB::table('users')
+            ->where(function ($query) {
+                $query->select('price')
+                    ->from('orders')
+                    ->whereColumn('orders.user_id', 'users.id')
+                    ->limit(1);
+            }, 100)
             ->get();
 
         $this->assertCount(2, $results);
@@ -205,6 +497,60 @@ class QueryTest extends TestCase
 
         $this->assertEquals(10, $results->first()->id);
         $this->assertEquals(1, $results->last()->id);
+    }
+
+    /** @test */
+    public function it_can_order_latest()
+    {
+        $this->seedTables();
+
+        $results = DB::table('users')->latest()->get();
+
+        $this->assertEquals(10, $results->first()->id);
+        $this->assertEquals(1, $results->last()->id);
+    }
+
+    /** @test */
+    public function it_can_order_oldest()
+    {
+        $this->seedTables();
+
+        $results = DB::table('users')->oldest()->get();
+
+        $this->assertEquals(1, $results->first()->id);
+        $this->assertEquals(10, $results->last()->id);
+    }
+
+    /** @test */
+    public function it_can_return_random_order()
+    {
+        $this->seedTables();
+
+        $resultsA = DB::table('users')->inRandomOrder()->get();
+        $resultsB = DB::table('users')->inRandomOrder()->get();
+        $resultsC = DB::table('users')->inRandomOrder()->get();
+
+        $this->assertNotEquals($resultsA, $resultsB);
+        $this->assertNotEquals($resultsA, $resultsC);
+        $this->assertNotEquals($resultsB, $resultsC);
+    }
+
+    /** @test */
+    public function it_can_remove_existing_orderings()
+    {
+        $this->seedTables();
+
+        $query = DB::table('users')->orderByDesc('id');
+
+        $results = $query->get();
+
+        $this->assertEquals(10, $results->first()->id);
+        $this->assertEquals(1, $results->last()->id);
+
+        $results = $query->reorder()->get();
+
+        $this->assertEquals(1, $results->first()->id);
+        $this->assertEquals(10, $results->last()->id);
     }
 
     /** @test */
