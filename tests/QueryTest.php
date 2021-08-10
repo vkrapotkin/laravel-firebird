@@ -1020,4 +1020,32 @@ class QueryTest extends TestCase
         $this->assertEquals(5, $results['Australia']);
         $this->assertEquals(3, $results['New Zealand']);
     }
+
+    /** @test */
+    public function it_can_offset_results()
+    {
+        User::factory()->count(10)->create();
+
+        $results = DB::table('users')
+            ->offset(3)
+            ->get();
+
+        $this->assertCount(7, $results);
+        $this->assertEquals(4, $results->first()->id);
+        $this->assertEquals(10, $results->last()->id);
+    }
+
+    /** @test */
+    public function it_can_limit_results()
+    {
+        User::factory()->count(10)->create();
+
+        $results = DB::table('users')
+            ->limit(3)
+            ->get();
+
+        $this->assertCount(3, $results);
+        $this->assertEquals(1, $results->first()->id);
+        $this->assertEquals(3, $results->last()->id);
+    }
 }
