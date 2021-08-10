@@ -982,4 +982,42 @@ class QueryTest extends TestCase
 
         $this->assertCount(3, $orders);
     }
+
+    /** @test */
+    public function it_can_group_having()
+    {
+        User::factory()->count(5)->create(['country' => 'Australia']);
+        User::factory()->count(3)->create(['country' => 'New Zealand']);
+        User::factory()->count(2)->create(['country' => 'England']);
+
+        $results = DB::table('users')
+            ->selectRaw('count("id") as "count", "country"')
+            ->groupBy('country')
+            ->having('country', '!=', 'England')
+            ->get();
+
+        $this->assertCount(2, $results);
+        $results = $results->mapWithKeys(fn ($result) => [$result->country => $result->count]);
+        $this->assertEquals(5, $results['Australia']);
+        $this->assertEquals(3, $results['New Zealand']);
+    }
+
+    /** @test */
+    public function it_can_group_having_raw()
+    {
+        User::factory()->count(5)->create(['country' => 'Australia']);
+        User::factory()->count(3)->create(['country' => 'New Zealand']);
+        User::factory()->count(2)->create(['country' => 'England']);
+
+        $results = DB::table('users')
+            ->selectRaw('count("id") as "count", "country"')
+            ->groupBy('country')
+            ->havingRaw('count("id") > 2')
+            ->get();
+
+        $this->assertCount(2, $results);
+        $results = $results->mapWithKeys(fn ($result) => [$result->country => $result->count]);
+        $this->assertEquals(5, $results['Australia']);
+        $this->assertEquals(3, $results['New Zealand']);
+    }
 }
