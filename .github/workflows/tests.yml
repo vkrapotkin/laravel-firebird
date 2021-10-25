@@ -18,7 +18,7 @@ jobs:
           - laravel: 8.*
             testbench: ^6.19
 
-    name: PHP ${{ matrix.php }}, Laravel ${{ matrix.laravel }}, ${{ matrix.stability }}
+    name: PHP ${{ matrix.php }}, Laravel ${{ matrix.laravel }}, Firebird ${{ matrix.firebird }}, ${{ matrix.stability }}
 
     services:
       firebird:
