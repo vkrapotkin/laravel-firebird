@@ -15,20 +15,38 @@ class SchemaTest extends TestCase
     public function it_has_table()
     {
         $this->assertTrue(Schema::hasTable('users'));
-        $this->assertFalse(Schema::hasTable('foobar'));
+        $this->assertFalse(Schema::hasTable('foo'));
     }
 
     /** @test */
     public function it_has_column()
     {
         $this->assertTrue(Schema::hasColumn('users', 'id'));
-        $this->assertFalse(Schema::hasColumn('users', 'foobar'));
+        $this->assertFalse(Schema::hasColumn('users', 'foo'));
     }
 
     /** @test */
     public function it_has_columns()
     {
         $this->assertTrue(Schema::hasColumns('users', ['id', 'country']));
+        $this->assertFalse(Schema::hasColumns('users', ['id', 'foo']));
+    }
+
+    /** @test */
+    public function it_can_create_a_table()
+    {
+        Schema::dropIfExists('foo');
+
+        $this->assertFalse(Schema::hasTable('foo'));
+
+        Schema::create('foo', function (Blueprint $table) {
+            $table->string('bar');
+        });
+
+        $this->assertTrue(Schema::hasTable('foo'));
+
+        // Clean up...
+        Schema::drop('foo');
     }
 
     /** @test */
@@ -53,30 +71,30 @@ class SchemaTest extends TestCase
     /** @test */
     public function it_can_drop_table()
     {
-        DB::select('RECREATE TABLE "foobar" ("id" INTEGER NOT NULL)');
+        DB::select('RECREATE TABLE "foo" ("id" INTEGER NOT NULL)');
 
-        $this->assertTrue(Schema::hasTable('foobar'));
+        $this->assertTrue(Schema::hasTable('foo'));
 
-        Schema::drop('foobar');
+        Schema::drop('foo');
 
-        $this->assertFalse(Schema::hasTable('foobar'));
+        $this->assertFalse(Schema::hasTable('foo'));
     }
 
     /** @test */
     public function it_can_drop_table_if_exists()
     {
-        DB::select('RECREATE TABLE "foobar" ("id" INTEGER NOT NULL)');
+        DB::select('RECREATE TABLE "foo" ("id" INTEGER NOT NULL)');
 
-        $this->assertTrue(Schema::hasTable('foobar'));
+        $this->assertTrue(Schema::hasTable('foo'));
 
-        Schema::dropIfExists('foobar');
+        Schema::dropIfExists('foo');
 
-        $this->assertFalse(Schema::hasTable('foobar'));
+        $this->assertFalse(Schema::hasTable('foo'));
 
         // Run again to check exists = false.
 
-        Schema::dropIfExists('foobar');
+        Schema::dropIfExists('foo');
 
-        $this->assertFalse(Schema::hasTable('foobar'));
+        $this->assertFalse(Schema::hasTable('foo'));
     }
 }
