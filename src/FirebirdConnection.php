@@ -2,13 +2,10 @@
 
 namespace Firebird;
 
-use Exception;
 use Firebird\Query\Builder as FirebirdQueryBuilder;
-use Firebird\Query\Grammars\Firebird1Grammar as Firebird1QueryGrammar;
-use Firebird\Query\Grammars\Firebird2Grammar as Firebird2QueryGrammar;
+use Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
 use Firebird\Schema\Builder as FirebirdSchemaBuilder;
 use Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
-use Firebird\Support\Version;
 use Illuminate\Database\Connection as DatabaseConnection;
 
 class FirebirdConnection extends DatabaseConnection
@@ -16,16 +13,13 @@ class FirebirdConnection extends DatabaseConnection
     /**
      * Get the default query grammar instance.
      *
-     * @return \Firebird\Query\Grammars\Firebird1Grammar|\Firebird\Query\Grammars\Firebird2Grammar
+     * @return \Illuminate\Database\Query\Grammars\Grammar
      */
     protected function getDefaultQueryGrammar()
     {
-        switch ($this->getDatabaseVersion()) {
-            case Version::FIREBIRD_15:
-                return new Firebird1QueryGrammar;
-            case Version::FIREBIRD_25:
-                return new Firebird2QueryGrammar;
-        }
+        return new FirebirdQueryGrammar;
+    }
+
     }
 
     /**
@@ -75,24 +69,5 @@ class FirebirdConnection extends DatabaseConnection
     public function executeProcedure($procedure, array $values = [])
     {
         return $this->query()->fromProcedure($procedure, $values)->get();
-    }
-
-    /**
-     * The Firebird database version that should be used when compiling queries.
-     *
-     * @return string
-     */
-    protected function getDatabaseVersion()
-    {
-        if (! array_key_exists('version', $this->config)) {
-            return Version::FIREBIRD_25;
-        }
-
-        // Check the user has provided a supported version.
-        if (! in_array($this->config['version'], Version::SUPPORTED_VERSIONS)) {
-            throw new Exception('The Firebird database version provided is not supported.');
-        }
-
-        return $this->config['version'];
     }
 }
