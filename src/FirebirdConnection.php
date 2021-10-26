@@ -72,7 +72,6 @@ class FirebirdConnection extends DatabaseConnection
      *
      * @param  string  $procedure
      * @param  array  $values
-     *
      * @return \Illuminate\Support\Collection
      */
     public function executeProcedure($procedure, array $values = [])
