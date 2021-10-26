@@ -743,53 +743,53 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_order_by_asc()
     {
-        Order::factory()->create(['created_at' => now()->subMonths(2)]);
-        Order::factory()->create(['created_at' => now()->subMonths(1)]);
-        Order::factory()->create(['created_at' => now()]);
+        Order::factory()->create(['price' => 100]);
+        Order::factory()->create(['price' => 200]);
+        Order::factory()->create(['price' => 300]);
 
-        $results = DB::table('users')->orderBy('id')->get();
+        $results = DB::table('orders')->orderBy('price')->get();
 
-        $this->assertEquals(1, $results->first()->id);
-        $this->assertEquals(3, $results->last()->id);
+        $this->assertEquals(100, $results->first()->price);
+        $this->assertEquals(300, $results->last()->price);
     }
 
     /** @test */
     public function it_can_order_by_desc()
     {
-        Order::factory()->create(['created_at' => now()->subMonths(2)]);
-        Order::factory()->create(['created_at' => now()->subMonths(1)]);
-        Order::factory()->create(['created_at' => now()]);
+        Order::factory()->create(['price' => 100]);
+        Order::factory()->create(['price' => 200]);
+        Order::factory()->create(['price' => 300]);
 
-        $results = DB::table('users')->orderByDesc('id')->get();
+        $results = DB::table('orders')->orderByDesc('price')->get();
 
-        $this->assertEquals(3, $results->first()->id);
-        $this->assertEquals(1, $results->last()->id);
+        $this->assertEquals(300, $results->first()->price);
+        $this->assertEquals(100, $results->last()->price);
     }
 
     /** @test */
     public function it_can_order_latest()
     {
-        Order::factory()->create(['created_at' => now()->subMonths(2)]);
-        Order::factory()->create(['created_at' => now()->subMonths(1)]);
-        Order::factory()->create(['created_at' => now()]);
+        Order::factory()->create(['price' => 100, 'created_at' => now()]);
+        Order::factory()->create(['price' => 200, 'created_at' => now()->subMonths(1)]);
+        Order::factory()->create(['price' => 300, 'created_at' => now()->subMonths(2)]);
 
-        $results = DB::table('users')->latest()->get();
+        $results = DB::table('orders')->latest()->get();
 
-        $this->assertEquals(3, $results->first()->id);
-        $this->assertEquals(1, $results->last()->id);
+        $this->assertEquals(100, $results->first()->price);
+        $this->assertEquals(300, $results->last()->price);
     }
 
     /** @test */
     public function it_can_order_oldest()
     {
-        Order::factory()->create(['created_at' => now()->subMonths(2)]);
-        Order::factory()->create(['created_at' => now()->subMonths(1)]);
-        Order::factory()->create(['created_at' => now()]);
+        Order::factory()->create(['price' => 100, 'created_at' => now()]);
+        Order::factory()->create(['price' => 200, 'created_at' => now()->subMonths(1)]);
+        Order::factory()->create(['price' => 300, 'created_at' => now()->subMonths(2)]);
 
-        $results = DB::table('users')->oldest()->get();
+        $results = DB::table('orders')->oldest()->get();
 
-        $this->assertEquals(1, $results->first()->id);
-        $this->assertEquals(3, $results->last()->id);
+        $this->assertEquals(300, $results->first()->price);
+        $this->assertEquals(100, $results->last()->price);
     }
 
     /** @test */
@@ -811,7 +811,7 @@ class QueryTest extends TestCase
     {
         Order::factory()->count(10)->create();
 
-        $query = DB::table('users')->orderByDesc('id');
+        $query = DB::table('orders')->orderByDesc('id');
 
         $results = $query->get();
 
@@ -829,7 +829,7 @@ class QueryTest extends TestCase
     {
         Order::factory()->count(10)->create();
 
-        $results = DB::table('users')->pluck('id');
+        $results = DB::table('orders')->pluck('id');
 
         $this->assertCount(10, $results);
         foreach (range(1, 10) as $expectedId) {

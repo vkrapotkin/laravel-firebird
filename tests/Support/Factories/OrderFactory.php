@@ -20,8 +20,8 @@ class OrderFactory extends Factory
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1, 200),
             'quantity' => $this->faker->numberBetween(0, 8),
-            'created_at' => now()->addSeconds(self::$id),
-            'updated_at' => now()->addSeconds(self::$id),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

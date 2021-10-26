@@ -21,8 +21,8 @@ class UserFactory extends Factory
             'state' => $this->faker->state,
             'post_code' => $this->faker->postcode,
             'country' => $this->faker->country,
-            'created_at' => now()->addSeconds(self::$id),
-            'updated_at' => now()->addSeconds(self::$id),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
