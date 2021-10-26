@@ -53,15 +53,13 @@ class FirebirdGrammar extends Grammar
      */
     public function compileCreate(Blueprint $blueprint, Fluent $command)
     {
+        if ($blueprint->temporary) {
+            throw new \LogicException('This database driver does not support temporary tables.');
+        }
+
         $columns = implode(', ', $this->getColumns($blueprint));
 
-        $sql = $blueprint->temporary ? 'create temporary' : 'create';
-
-        $sql .= ' table '.$this->wrapTable($blueprint)." ($columns)";
-
-        if ($blueprint->temporary) {
-            $sql .= $blueprint->preserve ? ' on commit delete rows' : ' on commit preserve rows';
-        }
+        $sql = 'create table '.$this->wrapTable($blueprint)." ($columns)";
 
         return $sql;
     }

@@ -3,6 +3,7 @@
 namespace HarryGulliford\Firebird\Tests;
 
 use HarryGulliford\Firebird\Tests\Support\MigrateDatabase;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -28,7 +29,25 @@ class SchemaTest extends TestCase
     public function it_has_columns()
     {
         $this->assertTrue(Schema::hasColumns('users', ['id', 'country']));
-        $this->assertFalse(Schema::hasColumns('users', ['id', 'foobar']));
+    }
+
+    /** @test */
+    public function it_throws_an_exception_for_creating_temporary_tables()
+    {
+        Schema::dropIfExists('foo');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('This database driver does not support temporary tables.');
+
+        $this->assertFalse(Schema::hasTable('foo'));
+
+        Schema::create('foo', function (Blueprint $table) {
+            $table->temporary();
+
+            $table->string('bar');
+        });
+
+        $this->assertFalse(Schema::hasTable('foo'));
     }
 
     /** @test */
