@@ -30,4 +30,16 @@ class SchemaTest extends TestCase
         $this->assertTrue(Schema::hasColumns('users', ['id', 'country']));
         $this->assertFalse(Schema::hasColumns('users', ['id', 'foobar']));
     }
+
+    /** @test */
+    public function it_can_drop_table()
+    {
+        DB::select('RECREATE TABLE "foobar" ("id" INTEGER NOT NULL)');
+
+        $this->assertTrue(Schema::hasTable('foobar'));
+
+        Schema::drop('foobar');
+
+        $this->assertFalse(Schema::hasTable('foobar'));
+    }
 }
