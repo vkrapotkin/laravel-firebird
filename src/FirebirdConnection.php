@@ -70,8 +70,8 @@ class FirebirdConnection extends DatabaseConnection
     /**
      * Execute a stored procedure.
      *
-     * @param string $procedure
-     * @param array $values
+     * @param  string  $procedure
+     * @param  array  $values
      *
      * @return \Illuminate\Support\Collection
      */

@@ -30,6 +30,7 @@ class FirebirdGrammar extends Grammar
      * All of the available clause operators.
      *
      * @var array
+     *
      * @link https://ib-aid.com/download/docs/firebird-language-reference-2.5/fblangref25-commons-predicates.html
      */
     protected $operators = [
@@ -40,8 +41,8 @@ class FirebirdGrammar extends Grammar
     ];
 
     /**
-     * @param Builder $query
-     * @param array $columns
+     * @param  Builder  $query
+     * @param  array  $columns
      * @return string|null
      */
     protected function compileColumns(Builder $query, $columns)

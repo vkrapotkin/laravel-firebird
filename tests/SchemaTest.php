@@ -3,7 +3,6 @@
 namespace Firebird\Tests;
 
 use Firebird\Tests\Support\MigrateDatabase;
-use Firebird\Tests\TestCase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
