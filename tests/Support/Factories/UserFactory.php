@@ -1,8 +1,8 @@
 <?php
 
-namespace Firebird\Tests\Support\Factories;
+namespace HarryGulliford\Firebird\Tests\Support\Factories;
 
-use Firebird\Tests\Support\Models\User;
+use HarryGulliford\Firebird\Tests\Support\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UserFactory extends Factory

@@ -1,10 +1,10 @@
 <?php
 
-namespace Firebird\Tests;
+namespace HarryGulliford\Firebird\Tests;
 
-use Firebird\Tests\Support\MigrateDatabase;
-use Firebird\Tests\Support\Models\Order;
-use Firebird\Tests\Support\Models\User;
+use HarryGulliford\Firebird\Tests\Support\MigrateDatabase;
+use HarryGulliford\Firebird\Tests\Support\Models\Order;
+use HarryGulliford\Firebird\Tests\Support\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

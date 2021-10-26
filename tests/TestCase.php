@@ -1,8 +1,8 @@
 <?php
 
-namespace Firebird\Tests;
+namespace HarryGulliford\Firebird\Tests;
 
-use Firebird\FirebirdServiceProvider;
+use HarryGulliford\Firebird\FirebirdServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
@@ -13,7 +13,7 @@ class TestCase extends OrchestraTestCase
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(function ($class) {
-            return 'Firebird\\Tests\\Support\\Factories\\'.class_basename($class).'Factory';
+            return 'HarryGulliford\\Firebird\\Tests\\Support\\Factories\\'.class_basename($class).'Factory';
         });
     }
 

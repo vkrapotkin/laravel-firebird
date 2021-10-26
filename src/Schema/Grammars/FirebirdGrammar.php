@@ -1,6 +1,6 @@
 <?php
 
-namespace Firebird\Schema\Grammars;
+namespace HarryGulliford\Firebird\Schema\Grammars;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Grammars\Grammar;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Firebird\Tests;
+namespace HarryGulliford\Firebird\Tests;
 
-use Firebird\Tests\Support\MigrateDatabase;
+use HarryGulliford\Firebird\Tests\Support\MigrateDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 

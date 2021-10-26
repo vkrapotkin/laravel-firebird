@@ -1,6 +1,6 @@
 <?php
 
-namespace Firebird;
+namespace HarryGulliford\Firebird;
 
 use Illuminate\Database\Connectors\Connector;
 use Illuminate\Database\Connectors\ConnectorInterface;

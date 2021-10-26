@@ -1,12 +1,12 @@
 <?php
 
-namespace Firebird;
+namespace HarryGulliford\Firebird;
 
-use Firebird\Query\Builder as FirebirdQueryBuilder;
-use Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
-use Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
-use Firebird\Schema\Builder as FirebirdSchemaBuilder;
-use Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
+use HarryGulliford\Firebird\Query\Builder as FirebirdQueryBuilder;
+use HarryGulliford\Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
+use HarryGulliford\Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
+use HarryGulliford\Firebird\Schema\Builder as FirebirdSchemaBuilder;
+use HarryGulliford\Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
 use Illuminate\Database\Connection as DatabaseConnection;
 
 class FirebirdConnection extends DatabaseConnection

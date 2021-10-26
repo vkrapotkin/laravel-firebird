@@ -22,18 +22,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Firebird\\": "src/"
+            "HarryGulliford\\Firebird\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Firebird\\Tests\\": "tests/"
+            "HarryGulliford\\Firebird\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Firebird\\FirebirdServiceProvider"
+                "HarryGulliford\\Firebird\\FirebirdServiceProvider"
             ]
         }
     }

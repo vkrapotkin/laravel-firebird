@@ -1,6 +1,6 @@
 <?php
 
-namespace Firebird;
+namespace HarryGulliford\Firebird;
 
 use Illuminate\Database\Connection;
 use Illuminate\Support\ServiceProvider;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Firebird\Query\Processors;
+namespace HarryGulliford\Firebird\Query\Processors;
 
 use Illuminate\Database\Query\Processors\Processor;
 
