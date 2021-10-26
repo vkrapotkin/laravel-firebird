@@ -56,16 +56,12 @@ class FirebirdGrammar extends Grammar
     {
         $columns = implode(', ', $this->getColumns($blueprint));
 
-        $sql = $blueprint->temporary ? 'CREATE TEMPORARY' : 'CREATE';
+        $sql = $blueprint->temporary ? 'create temporary' : 'create';
 
-        $sql .= ' TABLE '.$this->wrapTable($blueprint)." ($columns)";
+        $sql .= ' table '.$this->wrapTable($blueprint)." ($columns)";
 
         if ($blueprint->temporary) {
-            if ($blueprint->preserve) {
-                $sql .= ' ON COMMIT DELETE ROWS';
-            } else {
-                $sql .= ' ON COMMIT PRESERVE ROWS';
-            }
+            $sql .= $blueprint->preserve ? ' on commit delete rows' : ' on commit preserve rows';
         }
 
         return $sql;
