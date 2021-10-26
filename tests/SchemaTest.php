@@ -4,6 +4,7 @@ namespace Firebird\Tests;
 
 use Firebird\Tests\Support\MigrateDatabase;
 use Firebird\Tests\TestCase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class SchemaTest extends TestCase
@@ -39,6 +40,24 @@ class SchemaTest extends TestCase
         $this->assertTrue(Schema::hasTable('foobar'));
 
         Schema::drop('foobar');
+
+        $this->assertFalse(Schema::hasTable('foobar'));
+    }
+
+    /** @test */
+    public function it_can_drop_table_if_exists()
+    {
+        DB::select('RECREATE TABLE "foobar" ("id" INTEGER NOT NULL)');
+
+        $this->assertTrue(Schema::hasTable('foobar'));
+
+        Schema::dropIfExists('foobar');
+
+        $this->assertFalse(Schema::hasTable('foobar'));
+
+        // Run again to check exists = false.
+
+        Schema::dropIfExists('foobar');
 
         $this->assertFalse(Schema::hasTable('foobar'));
     }
