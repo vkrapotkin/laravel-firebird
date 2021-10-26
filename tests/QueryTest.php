@@ -263,6 +263,8 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_filter_where_like()
     {
+        // "Like" is case-sensitive. For case-insensitive, use "containing".
+
         Order::factory()->create(['name' => 'Pants Small']);
         Order::factory()->create(['name' => 'Pants Large']);
         Order::factory()->create(['name' => 'Shirt Small']);
@@ -373,6 +375,21 @@ class QueryTest extends TestCase
             ->get();
 
         $this->assertCount(8, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_in_exceeds_firebird_2_limit()
+    {
+        Order::factory()
+            ->count(1505)
+            ->for(User::factory())
+            ->create(['price' => 100]);
+
+        $results = DB::table('orders')
+            ->whereIn('price', [100])
+            ->count();
+
+        $this->assertEquals(1505, $results);
     }
 
     /** @test */
@@ -506,6 +523,184 @@ class QueryTest extends TestCase
             ->get();
 
         $this->assertCount(3, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_containing()
+    {
+        // "Containing" is a case-insensitive alternative to "like". Also, the
+        // % wildcard operators are not required.
+
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'containing', 'shirt')
+            ->get();
+
+        $this->assertCount(3, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'containing', 'small')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_containing()
+    {
+        // "Containing" is a case-insensitive alternative to "like". Also, the
+        // % wildcard operators are not required.
+
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'not containing', 'shirt')
+            ->get();
+
+        $this->assertCount(2, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'not containing', 'small')
+            ->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_starting_with()
+    {
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'starting with', 'Shirt')
+            ->get();
+
+        $this->assertCount(3, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'starting with', 'Pants')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_starting_with()
+    {
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'not starting with', 'Shirt')
+            ->get();
+
+        $this->assertCount(2, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'not starting with', 'Pants')
+            ->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_similar_to()
+    {
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'similar to', 'Pants (Medium|Large)')
+            ->get();
+
+        $this->assertCount(1, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'similar to', 'Shirt (Medium|Large)')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_not_similar_to()
+    {
+        Order::factory()->create(['name' => 'Pants Small']);
+        Order::factory()->create(['name' => 'Pants Large']);
+        Order::factory()->create(['name' => 'Shirt Small']);
+        Order::factory()->create(['name' => 'Shirt Medium']);
+        Order::factory()->create(['name' => 'Shirt Large']);
+
+        $results = DB::table('orders')
+            ->where('name', 'not similar to', 'Pants (Medium|Large)')
+            ->get();
+
+        $this->assertCount(4, $results);
+
+        $results = DB::table('orders')
+            ->where('name', 'not similar to', 'Shirt (Medium|Large)')
+            ->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_is_distinct_from()
+    {
+        User::factory()->create(['state' => null]);
+        User::factory()->create(['state' => 'NY']);
+        User::factory()->create(['state' => 'AK']);
+
+        $results = DB::table('users')
+            ->where('state', 'is distinct from', 'NY')
+            ->get();
+
+        $this->assertCount(2, $results);
+
+        $results = DB::table('users')
+            ->where('state', 'is distinct from', null)
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    /** @test */
+    public function it_can_filter_where_is_not_distinct_from()
+    {
+        User::factory()->create(['state' => null]);
+        User::factory()->create(['state' => 'NY']);
+        User::factory()->create(['state' => 'AK']);
+
+        $results = DB::table('users')
+            ->where('state', 'is not distinct from', 'NY')
+            ->get();
+
+        $this->assertCount(1, $results);
+
+        $results = DB::table('users')
+            ->where('state', 'is not distinct from', null)
+            ->get();
+
+        $this->assertCount(2, $results);
     }
 
     /** @test */
@@ -991,6 +1186,21 @@ class QueryTest extends TestCase
     }
 
     /** @test */
+    public function it_can_offset_and_limit_results()
+    {
+        User::factory()->count(10)->create();
+
+        $results = DB::table('users')
+            ->offset(3)
+            ->limit(3)
+            ->get();
+
+        $this->assertCount(3, $results);
+        $this->assertEquals(4, $results->first()->id);
+        $this->assertEquals(6, $results->last()->id);
+    }
+
+    /** @test */
     public function it_can_limit_results()
     {
         User::factory()->count(10)->create();
@@ -1002,5 +1212,11 @@ class QueryTest extends TestCase
         $this->assertCount(3, $results);
         $this->assertEquals(1, $results->first()->id);
         $this->assertEquals(3, $results->last()->id);
+    }
+
+    /** @test */
+    public function it_can_execute_stored_procedures()
+    {
+        $this->markTestSkipped('This test needs to be written.');
     }
 }
