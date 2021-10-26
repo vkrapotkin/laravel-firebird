@@ -12,6 +12,8 @@ class Order extends Model
 
     public $incrementing = false;
 
+    protected $guarded = [];
+
     public function user()
     {
         return $this->belongsTo(User::class);

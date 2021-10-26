@@ -12,6 +12,8 @@ class User extends Model
 
     public $incrementing = false;
 
+    protected $guarded = [];
+
     public function orders()
     {
         return $this->hasMany(Order::class);
