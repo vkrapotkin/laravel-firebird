@@ -29,7 +29,7 @@ class FirebirdGrammar extends Grammar
      */
     public function compileTableExists()
     {
-        return 'SELECT * FROM RDB$RELATIONS WHERE RDB$RELATION_NAME = ?';
+        return 'select rdb$relation_name from rdb$relations where rdb$relation_name = ?';
     }
 
     /**
@@ -40,8 +40,8 @@ class FirebirdGrammar extends Grammar
      */
     public function compileColumnListing($table)
     {
-        return 'SELECT TRIM(RDB$FIELD_NAME) AS "column_name" '
-                ."FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME = '$table'";
+        return 'select trim(rdb$field_name) as "column_name" '
+                ."from rdb\$relation_fields where rdb\$relation_name = '$table'";
     }
 
     /**
