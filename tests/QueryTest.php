@@ -2,61 +2,16 @@
 
 namespace Firebird\Tests;
 
-use Firebird\Tests\Support\Factories\OrderFactory;
-use Firebird\Tests\Support\Factories\UserFactory;
+use Firebird\Tests\Support\MigrateDatabase;
 use Firebird\Tests\Support\Models\Order;
 use Firebird\Tests\Support\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class QueryTest extends TestCase
 {
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->dropTables();
-        $this->createTables();
-    }
-
-    public function tearDown(): void
-    {
-        $this->dropTables();
-
-        // Reset the static ids on the users table, as firebird does not support
-        // auto-incrementing ids.
-        UserFactory::$id = 1;
-        OrderFactory::$id = 1;
-
-        parent::tearDown();
-    }
-
-    public function createTables(): void
-    {
-        DB::select('CREATE TABLE "users" ("id" INTEGER NOT NULL, "name" VARCHAR(255) NOT NULL, "email" VARCHAR(255) NOT NULL, "city" VARCHAR(255), "state" VARCHAR(255), "post_code" VARCHAR(255), "country" VARCHAR(255), "created_at" TIMESTAMP, "updated_at" TIMESTAMP, "deleted_at" TIMESTAMP)');
-        DB::select('ALTER TABLE "users" ADD PRIMARY KEY ("id")');
-
-        DB::select('CREATE TABLE "orders" ("id" INTEGER NOT NULL, "user_id" INTEGER NOT NULL, "name" VARCHAR(255) NOT NULL, "price" INTEGER NOT NULL, "quantity" INTEGER NOT NULL, "created_at" TIMESTAMP, "updated_at" TIMESTAMP, "deleted_at" TIMESTAMP)');
-        DB::select('ALTER TABLE "orders" ADD CONSTRAINT orders_user_id_foreign FOREIGN KEY ("user_id") REFERENCES "users" ("id")');
-        DB::select('ALTER TABLE "orders" ADD PRIMARY KEY ("id")');
-    }
-
-    public function dropTables(): void
-    {
-        try {
-            DB::select('drop table "orders"');
-        } catch (QueryException $e) {
-            // ...
-        }
-
-        try {
-            DB::select('drop table "users"');
-        } catch (QueryException $e) {
-            // ...
-        }
-    }
+    use MigrateDatabase;
 
     /** @test */
     public function it_has_the_correct_connection()
