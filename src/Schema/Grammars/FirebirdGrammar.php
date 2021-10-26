@@ -40,8 +40,7 @@ class FirebirdGrammar extends Grammar
      */
     public function compileColumnListing($table)
     {
-        return 'select trim(rdb$field_name) as "column_name" '
-                ."from rdb\$relation_fields where rdb\$relation_name = '$table'";
+        return "select trim(rdb\$field_name) as \"column_name\" from rdb\$relation_fields where rdb\$relation_name = '$table'";
     }
 
     /**
