@@ -5,7 +5,6 @@ namespace Firebird\Schema\Grammars;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Grammars\Grammar;
 use Illuminate\Support\Fluent;
-use Illuminate\Support\Str;
 
 class FirebirdGrammar extends Grammar
 {
@@ -89,11 +88,11 @@ class FirebirdGrammar extends Grammar
     public function compileDropIfExists(Blueprint $blueprint, Fluent $command)
     {
         // Replace the double quotes with single quotes.
-        $table = Str::replace('"', "'", $this->wrapTable($blueprint));
+        $table = str_replace('"', "'", $this->wrapTable($blueprint));
 
         return sprintf(
             "execute block as begin if (exists(%s)) then execute statement '%s'; end",
-            Str::replace('?', $table, $this->compileTableExists()), // Replace the ? character with the table name.
+            str_replace('?', $table, $this->compileTableExists()), // Replace the ? character with the table name.
             $this->compileDrop($blueprint, $command)
         );
     }
