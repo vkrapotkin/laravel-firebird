@@ -4,6 +4,7 @@ namespace Firebird;
 
 use Firebird\Query\Builder as FirebirdQueryBuilder;
 use Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
+use Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
 use Firebird\Schema\Builder as FirebirdSchemaBuilder;
 use Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
 use Illuminate\Database\Connection as DatabaseConnection;
@@ -20,6 +21,14 @@ class FirebirdConnection extends DatabaseConnection
         return new FirebirdQueryGrammar;
     }
 
+    /**
+     * Get the default post processor instance.
+     *
+     * @return \Illuminate\Database\Query\Processors\Processor
+     */
+    protected function getDefaultPostProcessor()
+    {
+        return new FirebirdQueryProcessor;
     }
 
     /**
