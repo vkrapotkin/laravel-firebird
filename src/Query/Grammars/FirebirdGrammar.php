@@ -140,9 +140,9 @@ class FirebirdGrammar extends Grammar
     /**
      * Compile SQL statement for a stored procedure.
      *
-     * @param \Illuminate\Database\Query\Builder  $query
-     * @param string $procedure
-     * @param array $values
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  string  $procedure
+     * @param  array  $values
      * @return string
      */
     public function compileProcedure(Builder $query, $procedure, array $values = null)
