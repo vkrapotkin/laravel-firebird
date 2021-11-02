@@ -1217,6 +1217,16 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_stored_procedures()
     {
-        $this->markTestSkipped('This test needs to be written.');
+        $firstNumber = random_int(1, 10);
+        $secondNumber = random_int(1, 10);
+
+        $result = DB::query()
+            ->fromProcedure('MULTIPLY', [
+                $firstNumber, $secondNumber,
+            ])
+            ->first()
+            ->RESULT;
+
+        $this->assertEquals($firstNumber * $secondNumber, $result);
     }
 }

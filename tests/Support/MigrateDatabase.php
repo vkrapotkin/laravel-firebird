@@ -18,6 +18,9 @@ trait MigrateDatabase
             $this->dropTables();
             $this->createTables();
 
+            $this->dropProcedure();
+            $this->createProcedure();
+
             MigrationState::$migrated = true;
         }
     }
@@ -67,6 +70,32 @@ trait MigrateDatabase
             // replicate dropIfExists() functionality without using the Schema
             // class.
             if (! Str::contains($e->getMessage(), 'does not exist')) {
+                throw $e;
+            }
+        }
+    }
+
+    public function createProcedure()
+    {
+        DB::select(
+            'CREATE PROCEDURE MULTIPLY (a INTEGER, b INTEGER)
+                RETURNS (result INTEGER)
+            AS BEGIN
+                result = a * b;
+                SUSPEND;
+            END'
+        );
+    }
+
+    public function dropProcedure()
+    {
+        try {
+            DB::select('DROP PROCEDURE MULTIPLY');
+        } catch (QueryException $e) {
+            // Suppress the "table does not exist" exception, as we want to
+            // replicate dropIfExists() functionality without using the Schema
+            // class.
+            if (! Str::contains($e->getMessage(), 'not found')) {
                 throw $e;
             }
         }
