@@ -92,7 +92,7 @@ trait MigrateDatabase
         try {
             DB::select('DROP PROCEDURE MULTIPLY');
         } catch (QueryException $e) {
-            // Suppress the "table does not exist" exception, as we want to
+            // Suppress the "procedure not found" exception, as we want to
             // replicate dropIfExists() functionality without using the Schema
             // class.
             if (! Str::contains($e->getMessage(), 'not found')) {
