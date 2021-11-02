@@ -5,7 +5,13 @@
 [![Tests](https://github.com/harrygulliford/laravel-firebird/actions/workflows/tests.yml/badge.svg)](https://github.com/harrygulliford/laravel-firebird/actions/workflows/tests.yml)
 [![License](https://poser.pugx.org/harrygulliford/laravel-firebird/license)](https://packagist.org/packages/harrygulliford/laravel-firebird)
 
-This package adds support for the Firebird PDO driver in Laravel applications. Support for Laravel 8+ with PHP 7.4+ and Firebird 2.5, 3 and 4.
+This package adds support for the Firebird PDO Database Driver in Laravel applications.
+
+## Version Support
+
+- **PHP:** 7.4, 8.0
+- **Laravel:** 8.0
+- **Firebird:** 2.5, 3.0, 4.0
 
 ## Installation
 
@@ -37,14 +43,16 @@ driver:
 ```
 
 To register this package in Lumen, you'll also need to add the following line to the service providers in your `config/app.php` file:
-`$app->register(\Firebird\FirebirdServiceProvider::class);`
+`$app->register(\HarryGulliford\Firebird\FirebirdServiceProvider::class);`
 
 ## Limitations
-This package does not support database migrations and it should not be used for this use case.
+This package does not intend to support database migrations and it should not be used for this use case.
 
 ## Credits
-- [jacquestvanzuydam/laravel-firebird](https://github.com/jacquestvanzuydam/laravel-firebird)
-- [sim1984/laravel-firebird](https://github.com/sim1984/laravel-firebird)
+- [Harry Gulliford](https://github.com/harrygulliford)
+- [Jacques van Zuydam](https://github.com/jacquestvanzuydam/laravel-firebird)
+- [Simonov Denis](https://github.com/sim1984/laravel-firebird)
+- [All Contributors](https://github.com/harrygulliford/laravel-firebird/graphs/contributors)
 
 ## License
-Licensed under the [MIT](https://choosealicense.com/licenses/mit/) licence.
+Licensed under the [MIT](https://choosealicense.com/licenses/mit/) license.
