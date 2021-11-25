@@ -44,7 +44,7 @@ jobs:
 
         # Ref: https://github.com/laravel/framework/blob/8.x/.github/workflows/tests.yml#L64
       - name: Set minimum PHP 8.1 dependency versions
-        run: composer require symfony/symfony:5.4.x-dev phpunit/phpunit:^9.5.8 --no-interaction --no-update
+        run: composer require symfony/symfony:5.4.x-dev league/commonmark:^2.0.2 phpunit/phpunit:^9.5.8 --no-interaction --no-update
         if: matrix.php >= 8.1
 
       - name: Install dependencies
