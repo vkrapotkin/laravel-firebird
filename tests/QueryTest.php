@@ -961,6 +961,13 @@ class QueryTest extends TestCase
     /** @test */
     public function it_can_execute_raw_select()
     {
+        dump(phpversion('pdo_firebird'), phpversion('firebird'));
+
+        if ($this->getDatabaseEngineVersion() >= 4.0) {
+            // Ref: https://github.com/FirebirdSQL/php-firebird/issues/26
+            $this->markTestSkipped('Skipped due to an issue with DECIMAL or NUMERIC types in the PHP Firebird PDO extension for database engine version 4.0+');
+        }
+
         Order::factory()
             ->count(3)
             ->state(new Sequence(
@@ -1213,6 +1220,19 @@ class QueryTest extends TestCase
         $this->assertEquals(1, $results->first()->id);
         $this->assertEquals(3, $results->last()->id);
     }
+
+    // /** @test */
+    // public function it_can_insert_returning_id()
+    // {
+    //     $id = DB::table('users')
+    //         ->insertGetId([
+    //             'name' => 'Anna',
+    //             'city' => 'Sydney',
+    //             'country' => 'Australia',
+    //         ]);
+
+    //     dd($id);
+    // }
 
     /** @test */
     public function it_can_execute_stored_procedures()
