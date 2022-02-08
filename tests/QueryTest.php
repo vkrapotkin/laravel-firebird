@@ -959,10 +959,8 @@ class QueryTest extends TestCase
     }
 
     /** @test */
-    public function it_can_execute_raw_select()
+    public function it_can_execute_raw_select_containing_arithmetic()
     {
-        dump(phpversion('pdo_firebird'), phpversion('firebird'));
-
         if ($this->getDatabaseEngineVersion() >= 4.0) {
             // Ref: https://github.com/FirebirdSQL/php-firebird/issues/26
             $this->markTestSkipped('Skipped due to an issue with DECIMAL or NUMERIC types in the PHP Firebird PDO extension for database engine version 4.0+');
@@ -984,6 +982,26 @@ class QueryTest extends TestCase
         foreach ($results as $result) {
             $this->assertEquals($result->price * 1.1, $result->price_with_tax);
         }
+    }
+
+    /** @test */
+    public function it_can_execute_raw_select_containing_sum()
+    {
+        Order::factory()
+            ->count(3)
+            ->state(new Sequence(
+                ['price' => 50],
+                ['price' => 70],
+                ['price' => 90],
+            ))
+            ->create();
+
+        $result = DB::table('orders')
+            ->selectRaw('SUM("price") as "price"')
+            ->get()
+            ->first();
+
+        $this->assertEquals(210, $result->price);
     }
 
     /** @test */
