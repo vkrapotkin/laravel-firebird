@@ -156,8 +156,8 @@ class FirebirdGrammar extends Grammar
     /**
      * Compile an aggregated select clause.
      *
-     * @param Builder $query
-     * @param array   $aggregate
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $aggregate
      * @return string
      */
     protected function compileAggregate(Builder $query, $aggregate)
