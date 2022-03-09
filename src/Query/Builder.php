@@ -37,25 +37,4 @@ class Builder extends QueryBuilder
 
         return $this;
     }
-
-    /**
-     * Run a pagination count query.
-     *
-     * @param  array  $columns
-     * @return array
-     */
-    protected function runPaginationCountQuery($columns = ['*'])
-    {
-        $results = parent::runPaginationCountQuery($columns);
-
-        // Convert the resultset keys to lower, so they can be handled correctly
-        // by the paginator.
-        if ($this->getConnection()->getPdo()->getAttribute(\PDO::ATTR_CASE) !== \PDO::CASE_LOWER) {
-            foreach ($results as $key => $value) {
-                $results[$key] = (object) array_change_key_case((array) $value, CASE_LOWER);
-            }
-        }
-
-        return $results;
-    }
 }

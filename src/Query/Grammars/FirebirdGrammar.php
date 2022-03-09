@@ -4,6 +4,7 @@ namespace HarryGulliford\Firebird\Query\Grammars;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Grammars\Grammar;
+use Illuminate\Support\Str;
 
 class FirebirdGrammar extends Grammar
 {
@@ -150,5 +151,22 @@ class FirebirdGrammar extends Grammar
         $procedure = $this->wrap($procedure);
 
         return $procedure.' ('.$this->parameterize($values).')';
+    }
+
+    /**
+     * Compile an aggregated select clause.
+     *
+     * @param Builder $query
+     * @param array   $aggregate
+     * @return string
+     */
+    protected function compileAggregate(Builder $query, $aggregate)
+    {
+        // Wrap `aggregate` in double quotes to ensure the resultset returns the
+        // column name as a lowercase string. This resolves compatibility with
+        // the framework's paginator.
+        return Str::replaceLast(
+            'as aggregate', 'as "aggregate"', parent::compileAggregate($query, $aggregate)
+        );
     }
 }
