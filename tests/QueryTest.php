@@ -980,7 +980,7 @@ class QueryTest extends TestCase
             ->get();
 
         foreach ($results as $result) {
-            $this->assertEquals($result->price * 1.1, $result->price_with_tax);
+            $this->assertEquals(round($result->price * 1.1), $result->price_with_tax);
         }
     }
 
