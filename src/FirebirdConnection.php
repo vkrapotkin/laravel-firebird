@@ -1,42 +1,41 @@
 <?php
 
-namespace HarryGulliford\Firebird;
+declare(strict_types=1);
 
-use HarryGulliford\Firebird\Query\Builder as FirebirdQueryBuilder;
-use HarryGulliford\Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
-use HarryGulliford\Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
-use HarryGulliford\Firebird\Schema\Builder as FirebirdSchemaBuilder;
-use HarryGulliford\Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
+namespace Danidoble\Firebird;
+
+use Danidoble\Firebird\Query\Builder as FirebirdQueryBuilder;
+use Danidoble\Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
+use Danidoble\Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
+use Danidoble\Firebird\Schema\Builder as FirebirdSchemaBuilder;
+use Danidoble\Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
 use Illuminate\Database\Connection as DatabaseConnection;
+use Illuminate\Database\Grammar;
+use Illuminate\Database\Schema\Builder;
+use Illuminate\Support\Collection;
 
 class FirebirdConnection extends DatabaseConnection
 {
     /**
      * Get the default query grammar instance.
-     *
-     * @return \Illuminate\Database\Query\Grammars\Grammar
      */
-    protected function getDefaultQueryGrammar()
+    protected function getDefaultQueryGrammar(): FirebirdQueryGrammar
     {
         return new FirebirdQueryGrammar;
     }
 
     /**
      * Get the default post processor instance.
-     *
-     * @return \Illuminate\Database\Query\Processors\Processor
      */
-    protected function getDefaultPostProcessor()
+    protected function getDefaultPostProcessor(): FirebirdQueryProcessor
     {
         return new FirebirdQueryProcessor;
     }
 
     /**
      * Get a schema builder instance for this connection.
-     *
-     * @return \Firebird\Schema\Builder
      */
-    public function getSchemaBuilder()
+    public function getSchemaBuilder(): Builder|FirebirdSchemaBuilder
     {
         if (is_null($this->schemaGrammar)) {
             $this->useDefaultSchemaGrammar();
@@ -47,20 +46,16 @@ class FirebirdConnection extends DatabaseConnection
 
     /**
      * Get the default schema grammar instance.
-     *
-     * @return \Firebird\Schema\Grammars\FirebirdGrammar
      */
-    protected function getDefaultSchemaGrammar()
+    protected function getDefaultSchemaGrammar(): Grammar
     {
         return $this->withTablePrefix(new FirebirdSchemaGrammar);
     }
 
     /**
      * Get a new query builder instance.
-     *
-     * @return \Firebird\Query\Builder
      */
-    public function query()
+    public function query(): FirebirdQueryBuilder
     {
         return new FirebirdQueryBuilder(
             $this, $this->getQueryGrammar(), $this->getPostProcessor()
@@ -69,12 +64,8 @@ class FirebirdConnection extends DatabaseConnection
 
     /**
      * Execute a stored procedure.
-     *
-     * @param  string  $procedure
-     * @param  array  $values
-     * @return \Illuminate\Support\Collection
      */
-    public function executeProcedure($procedure, array $values = [])
+    public function executeProcedure(string $procedure, array $values = []): Collection
     {
         return $this->query()->fromProcedure($procedure, $values)->get();
     }

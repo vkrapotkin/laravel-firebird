@@ -1,6 +1,8 @@
 <?php
 
-namespace HarryGulliford\Firebird\Query\Grammars;
+declare(strict_types=1);
+
+namespace Danidoble\Firebird\Query\Grammars;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Grammars\Grammar;
@@ -28,7 +30,7 @@ class FirebirdGrammar extends Grammar
     ];
 
     /**
-     * All of the available clause operators.
+     * All the available clause operators.
      *
      * @var array
      *
@@ -42,7 +44,6 @@ class FirebirdGrammar extends Grammar
     ];
 
     /**
-     * @param  Builder  $query
      * @param  array  $columns
      * @return string|null
      */
@@ -50,7 +51,7 @@ class FirebirdGrammar extends Grammar
     {
         // See superclass.
         if (! is_null($query->aggregate)) {
-            return;
+            return null;
         }
 
         // In Firebird, the correct syntax for limiting and offsetting rows is
@@ -80,11 +81,9 @@ class FirebirdGrammar extends Grammar
     /**
      * Compile the "limit" portions of the query.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @param  int  $limit
-     * @return string
      */
-    protected function compileLimit(Builder $query, $limit)
+    protected function compileLimit(Builder $query, $limit): string
     {
         return 'first '.(int) $limit;
     }
@@ -92,11 +91,9 @@ class FirebirdGrammar extends Grammar
     /**
      * Compile the "offset" portions of the query.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @param  int  $offset
-     * @return string
      */
-    protected function compileOffset(Builder $query, $offset)
+    protected function compileOffset(Builder $query, $offset): string
     {
         return 'skip '.(int) $offset;
     }
@@ -105,20 +102,18 @@ class FirebirdGrammar extends Grammar
      * Compile the random statement into SQL.
      *
      * @param  string  $seed
-     * @return string
      */
-    public function compileRandom($seed)
+    public function compileRandom($seed): string
     {
         return 'RAND()';
     }
 
     /**
-     * Wrap a union subquery in parentheses.
+     * Wrap a union sub query in parentheses.
      *
      * @param  string  $sql
-     * @return string
      */
-    protected function wrapUnion($sql)
+    protected function wrapUnion($sql): string
     {
         return $sql;
     }
@@ -127,11 +122,9 @@ class FirebirdGrammar extends Grammar
      * Compile a date based where clause.
      *
      * @param  string  $type
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @param  array  $where
-     * @return string
      */
-    protected function dateBasedWhere($type, Builder $query, $where)
+    protected function dateBasedWhere($type, Builder $query, $where): string
     {
         $value = $this->parameter($where['value']);
 
@@ -140,13 +133,8 @@ class FirebirdGrammar extends Grammar
 
     /**
      * Compile SQL statement for a stored procedure.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  string  $procedure
-     * @param  array  $values
-     * @return string
      */
-    public function compileProcedure(Builder $query, $procedure, array $values = null)
+    public function compileProcedure(Builder $query, string $procedure, ?array $values = null): string
     {
         $procedure = $this->wrap($procedure);
 
@@ -156,17 +144,25 @@ class FirebirdGrammar extends Grammar
     /**
      * Compile an aggregated select clause.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @param  array  $aggregate
-     * @return string
      */
-    protected function compileAggregate(Builder $query, $aggregate)
+    protected function compileAggregate(Builder $query, $aggregate): string
     {
-        // Wrap `aggregate` in double quotes to ensure the resultset returns the
+        // Wrap `aggregate` in double quotes to ensure the result set returns the
         // column name as a lowercase string. This resolves compatibility with
         // the framework's paginator.
         return Str::replaceLast(
             'as aggregate', 'as "aggregate"', parent::compileAggregate($query, $aggregate)
         );
+    }
+
+    public function whereDate(Builder $query, $where)
+    {
+        return $this->dateBasedWhere('YEAR', $query, $where);
+    }
+
+    public function whereTime(Builder $query, $where)
+    {
+        return $this->dateBasedWhere('HOUR', $query, $where);
     }
 }

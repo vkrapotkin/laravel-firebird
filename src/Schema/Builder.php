@@ -1,6 +1,8 @@
 <?php
 
-namespace HarryGulliford\Firebird\Schema;
+declare(strict_types=1);
+
+namespace Danidoble\Firebird\Schema;
 
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 

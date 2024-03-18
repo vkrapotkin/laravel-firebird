@@ -1,6 +1,6 @@
 <?php
 
-namespace HarryGulliford\Firebird\Tests\Support\Models;
+namespace Danidoble\Firebird\Tests\Support\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +14,7 @@ class Order extends Model
 
     protected $guarded = [];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }

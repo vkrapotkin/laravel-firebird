@@ -1,6 +1,8 @@
 <?php
 
-namespace HarryGulliford\Firebird\Query;
+declare(strict_types=1);
+
+namespace Danidoble\Firebird\Query;
 
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
@@ -8,22 +10,16 @@ class Builder extends QueryBuilder
 {
     /**
      * Determine if any rows exist for the current query.
-     *
-     * @return bool
      */
-    public function exists()
+    public function exists(): bool
     {
         return parent::count() > 0;
     }
 
     /**
      * Add a from stored procedure clause to the query builder.
-     *
-     * @param  string  $procedure
-     * @param  array  $values
-     * @return \Illuminate\Database\Query\Builder|static
      */
-    public function fromProcedure(string $procedure, array $values = [])
+    public function fromProcedure(string $procedure, array $values = []): QueryBuilder|static
     {
         $compiledProcedure = $this->grammar->compileProcedure($this, $procedure, $values);
 

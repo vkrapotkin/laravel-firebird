@@ -1,8 +1,8 @@
 <?php
 
-namespace HarryGulliford\Firebird\Tests\Support\Factories;
+namespace Danidoble\Firebird\Tests\Support\Factories;
 
-use HarryGulliford\Firebird\Tests\Support\Models\User;
+use Danidoble\Firebird\Tests\Support\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UserFactory extends Factory
@@ -11,7 +11,7 @@ class UserFactory extends Factory
 
     public static int $id = 1;
 
-    public function definition()
+    public function definition(): array
     {
         return [
             'id' => self::$id++,

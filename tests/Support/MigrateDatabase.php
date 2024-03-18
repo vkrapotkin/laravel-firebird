@@ -1,16 +1,16 @@
 <?php
 
-namespace HarryGulliford\Firebird\Tests\Support;
+namespace Danidoble\Firebird\Tests\Support;
 
-use HarryGulliford\Firebird\Tests\Support\Factories\OrderFactory;
-use HarryGulliford\Firebird\Tests\Support\Factories\UserFactory;
+use Danidoble\Firebird\Tests\Support\Factories\OrderFactory;
+use Danidoble\Firebird\Tests\Support\Factories\UserFactory;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 trait MigrateDatabase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -25,7 +25,7 @@ trait MigrateDatabase
         }
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         DB::select('DELETE FROM "orders"');
         DB::select('DELETE FROM "users"');
@@ -75,7 +75,7 @@ trait MigrateDatabase
         }
     }
 
-    public function createProcedure()
+    public function createProcedure(): void
     {
         DB::select(
             'CREATE PROCEDURE MULTIPLY (a INTEGER, b INTEGER)
@@ -87,7 +87,7 @@ trait MigrateDatabase
         );
     }
 
-    public function dropProcedure()
+    public function dropProcedure(): void
     {
         try {
             DB::select('DROP PROCEDURE MULTIPLY');
