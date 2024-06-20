@@ -2,6 +2,14 @@
 
 All notable changes will be documented in this file
 
+## v4.0.1 - 2024-06-20
+
+### What's Changed
+
+* add escape to grammar by [@danidoble](https://github.com/danidoble) in https://github.com/danidoble/laravel-firebird/pull/3
+
+**Full Changelog**: https://github.com/danidoble/laravel-firebird/compare/v4.0.0...v4.0.1
+
 ## v4.0.0 - 2024-03-18
 
 ### What's Changed
