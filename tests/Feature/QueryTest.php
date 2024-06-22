@@ -443,7 +443,7 @@ it('can filter where day', function () {
 
 it('can filter where month', function () {
     Order::factory()->count(3)->create(['created_at' => now()]);
-    Order::factory()->count(5)->create(['created_at' => now()->subMonth()]);
+    Order::factory()->count(5)->create(['created_at' => now()->subMonthNoOverflow()]);
 
     $results = DB::table('orders')
         ->whereMonth('created_at', now())
@@ -454,7 +454,7 @@ it('can filter where month', function () {
 
 it('can filter where year', function () {
     Order::factory()->count(3)->create(['created_at' => now()]);
-    Order::factory()->count(5)->create(['created_at' => now()->subYear()]);
+    Order::factory()->count(5)->create(['created_at' => now()->subYearNoOverflow()]);
 
     $results = DB::table('orders')
         ->whereYear('created_at', now())
@@ -680,8 +680,8 @@ it('can order by desc', function () {
 
 it('can order latest', function () {
     Order::factory()->create(['price' => 100, 'created_at' => now()]);
-    Order::factory()->create(['price' => 200, 'created_at' => now()->subMonth()]);
-    Order::factory()->create(['price' => 300, 'created_at' => now()->subMonths(2)]);
+    Order::factory()->create(['price' => 200, 'created_at' => now()->subMonthsNoOverflow(1)]);
+    Order::factory()->create(['price' => 300, 'created_at' => now()->subMonthsNoOverflow(2)]);
 
     $results = DB::table('orders')->latest()->get();
 
@@ -691,8 +691,8 @@ it('can order latest', function () {
 
 it('can order oldest', function () {
     Order::factory()->create(['price' => 100, 'created_at' => now()]);
-    Order::factory()->create(['price' => 200, 'created_at' => now()->subMonth()]);
-    Order::factory()->create(['price' => 300, 'created_at' => now()->subMonths(2)]);
+    Order::factory()->create(['price' => 200, 'created_at' => now()->subMonthsNoOverflow(1)]);
+    Order::factory()->create(['price' => 300, 'created_at' => now()->subMonthsNoOverflow(2)]);
 
     $results = DB::table('orders')->oldest()->get();
 
