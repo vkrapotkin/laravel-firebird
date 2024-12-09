@@ -1,6 +1,6 @@
 {
-    "name": "danidoble/laravel-firebird",
-    "description": "Firebird database driver for Laravel Framework",
+    "name": "vkrapotkin/laravel-firebird",
+    "description": "Firebird database driver for Laravel Framework. A fork from the danidoble/laravel-firebird package.",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -10,10 +10,10 @@
     ],
     "authors": [
         {
-            "name": "Danidoble",
-            "email": "ddanidoble@gmail.com",
+            "name": "vkrapotkin",
+            "email": "vladimir.krapotkin@gmail.com",
             "role": "Developer",
-            "homepage": "https://danidoble.com"
+            "homepage": ""
         }
     ],
     "require": {
@@ -36,7 +36,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Danidoble\\Firebird\\Tests\\": "tests/",
+            "Vkrapotkin\\Firebird\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
@@ -45,7 +45,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Danidoble\\Firebird\\Providers\\FirebirdServiceProvider"
+                "Vkrapotkin\\Firebird\\Providers\\FirebirdServiceProvider"
             ]
         }
     },
