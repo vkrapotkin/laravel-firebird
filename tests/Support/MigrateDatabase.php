@@ -1,9 +1,9 @@
 <?php
 
-namespace Danidoble\Firebird\Tests\Support;
+namespace Vkrapotkin\Firebird\Tests\Support;
 
-use Danidoble\Firebird\Tests\Support\Factories\OrderFactory;
-use Danidoble\Firebird\Tests\Support\Factories\UserFactory;
+use Vkrapotkin\Firebird\Tests\Support\Factories\OrderFactory;
+use Vkrapotkin\Firebird\Tests\Support\Factories\UserFactory;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

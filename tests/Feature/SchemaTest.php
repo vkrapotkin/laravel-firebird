@@ -1,6 +1,6 @@
 <?php
 
-use Danidoble\Firebird\Tests\TestCase;
+use Vkrapotkin\Firebird\Tests\TestCase;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;

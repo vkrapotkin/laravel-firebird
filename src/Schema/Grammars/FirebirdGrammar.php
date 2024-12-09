@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird\Schema\Grammars;
+namespace Vkrapotkin\Firebird\Schema\Grammars;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Grammars\Grammar;

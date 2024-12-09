@@ -1,9 +1,9 @@
 <?php
 
-namespace Danidoble\Firebird\Tests;
+namespace Vkrapotkin\Firebird\Tests;
 
-use Danidoble\Firebird\Providers\FirebirdServiceProvider;
-use Danidoble\Firebird\Tests\Support\MigrateDatabase;
+use Vkrapotkin\Firebird\Providers\FirebirdServiceProvider;
+use Vkrapotkin\Firebird\Tests\Support\MigrateDatabase;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
@@ -15,7 +15,7 @@ class TestCase extends OrchestraTestCase
     protected function defineEnvironment($app)
     {
         Factory::guessFactoryNamesUsing(function ($class) {
-            return 'Danidoble\\Firebird\\Tests\\Support\\Factories\\'.class_basename($class).'Factory';
+            return 'Vkrapotkin\\Firebird\\Tests\\Support\\Factories\\'.class_basename($class).'Factory';
         });
 
         if (env('TEST_ENV_FILE') && file_exists(__DIR__.'/'.env('TEST_ENV_FILE'))) {

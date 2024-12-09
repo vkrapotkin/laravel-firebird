@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird\Query;
+namespace Vkrapotkin\Firebird\Query;
 
 use Illuminate\Database\Query\Builder as QueryBuilder;
 

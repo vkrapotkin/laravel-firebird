@@ -1,9 +1,9 @@
 <?php
 
-namespace Danidoble\Firebird\Tests\Support\Factories;
+namespace Vkrapotkin\Firebird\Tests\Support\Factories;
 
-use Danidoble\Firebird\Tests\Support\Models\Order;
-use Danidoble\Firebird\Tests\Support\Models\User;
+use Vkrapotkin\Firebird\Tests\Support\Models\Order;
+use Vkrapotkin\Firebird\Tests\Support\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderFactory extends Factory

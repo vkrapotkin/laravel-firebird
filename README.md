@@ -18,7 +18,7 @@ This package adds support for the Firebird PDO Database Driver in Laravel applic
 You can install the package via composer:
 
 ```bash
-composer require danidoble/laravel-firebird
+composer require vkrapotkin/laravel-firebird
 ```
 
 _The package will automatically register itself._

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird\Schema;
+namespace Vkrapotkin\Firebird\Schema;
 
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 

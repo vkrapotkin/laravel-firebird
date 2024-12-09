@@ -1,7 +1,7 @@
 <?php
 
-use Danidoble\Firebird\Tests\Support\Models\Order;
-use Danidoble\Firebird\Tests\TestCase;
+use Vkrapotkin\Firebird\Tests\Support\Models\Order;
+use Vkrapotkin\Firebird\Tests\TestCase;
 use Illuminate\Support\Facades\DB;
 
 uses(TestCase::class);

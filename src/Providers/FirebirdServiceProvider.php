@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird\Providers;
+namespace Vkrapotkin\Firebird\Providers;
 
-use Danidoble\Firebird\FirebirdConnection;
-use Danidoble\Firebird\FirebirdConnector;
+use Vkrapotkin\Firebird\FirebirdConnection;
+use Vkrapotkin\Firebird\FirebirdConnector;
 use Illuminate\Database\Connection;
 use Illuminate\Support\ServiceProvider;
 

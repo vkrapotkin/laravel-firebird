@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird\Query\Processors;
+namespace Vkrapotkin\Firebird\Query\Processors;
 
 use Illuminate\Database\Query\Processors\Processor;
 

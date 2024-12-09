@@ -1,6 +1,6 @@
 <?php
 
-namespace Danidoble\Firebird\Tests\Support;
+namespace Vkrapotkin\Firebird\Tests\Support;
 
 abstract class MigrationState
 {

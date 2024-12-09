@@ -1,8 +1,8 @@
 <?php
 
-use Danidoble\Firebird\Tests\Support\Factories\UserFactory;
-use Danidoble\Firebird\Tests\Support\Models\User;
-use Danidoble\Firebird\Tests\TestCase;
+use Vkrapotkin\Firebird\Tests\Support\Factories\UserFactory;
+use Vkrapotkin\Firebird\Tests\Support\Models\User;
+use Vkrapotkin\Firebird\Tests\TestCase;
 
 uses(TestCase::class);
 

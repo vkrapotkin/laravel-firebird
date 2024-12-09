@@ -13,7 +13,7 @@
             "name": "vkrapotkin",
             "email": "vladimir.krapotkin@gmail.com",
             "role": "Developer",
-            "homepage": ""
+            "homepage": "https://github.com/vkrapotkin"
         }
     ],
     "require": {
@@ -31,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Danidoble\\Firebird\\": "src/"
+            "Vkrapotkin\\Firebird\\": "src/"
         }
     },
     "autoload-dev": {

@@ -10,4 +10,4 @@ jobs:
   update:
     permissions:
       contents: write
-    uses: danidoble/.github/.github/workflows/update-changelog.yml@main
+    uses: vkrapotkin/.github/.github/workflows/update-changelog.yml@main

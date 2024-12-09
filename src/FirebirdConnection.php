@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird;
+namespace Vkrapotkin\Firebird;
 
-use Danidoble\Firebird\Query\Builder as FirebirdQueryBuilder;
-use Danidoble\Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
-use Danidoble\Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
-use Danidoble\Firebird\Schema\Builder as FirebirdSchemaBuilder;
-use Danidoble\Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
+use Vkrapotkin\Firebird\Query\Builder as FirebirdQueryBuilder;
+use Vkrapotkin\Firebird\Query\Grammars\FirebirdGrammar as FirebirdQueryGrammar;
+use Vkrapotkin\Firebird\Query\Processors\FirebirdProcessor as FirebirdQueryProcessor;
+use Vkrapotkin\Firebird\Schema\Builder as FirebirdSchemaBuilder;
+use Vkrapotkin\Firebird\Schema\Grammars\FirebirdGrammar as FirebirdSchemaGrammar;
 use Illuminate\Database\Connection as DatabaseConnection;
 use Illuminate\Database\Grammar;
 use Illuminate\Database\Schema\Builder;

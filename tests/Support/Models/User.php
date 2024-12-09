@@ -1,6 +1,6 @@
 <?php
 
-namespace Danidoble\Firebird\Tests\Support\Models;
+namespace Vkrapotkin\Firebird\Tests\Support\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

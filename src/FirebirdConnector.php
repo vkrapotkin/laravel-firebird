@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Danidoble\Firebird;
+namespace Vkrapotkin\Firebird;
 
 use Exception;
 use Illuminate\Database\Connectors\Connector;

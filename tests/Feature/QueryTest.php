@@ -1,8 +1,8 @@
 <?php
 
-use Danidoble\Firebird\Tests\Support\Models\Order;
-use Danidoble\Firebird\Tests\Support\Models\User;
-use Danidoble\Firebird\Tests\TestCase;
+use Vkrapotkin\Firebird\Tests\Support\Models\Order;
+use Vkrapotkin\Firebird\Tests\Support\Models\User;
+use Vkrapotkin\Firebird\Tests\TestCase;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
