@@ -165,4 +165,13 @@ class FirebirdGrammar extends Grammar
     {
         return $this->dateBasedWhere('HOUR', $query, $where);
     }
+
+    protected function wrapValue($value)
+    {
+//        if ($value !== '*') {
+//            return '"'.str_replace('"', '""', $value).'"';
+//        }
+        return $value;
+    }
+
 }
